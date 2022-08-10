@@ -1,7 +1,8 @@
 version: '3.1'
 
 services:
-  db:
+  postgres:
+    container_name: postgres
     image: postgres
     restart: always
     environment:
@@ -9,6 +10,27 @@ services:
       POSTGRES_USER: "${DB_USER}"
       POSTGRES_DB: "${DB_NAME}"
     ports:
-      - 5432:5432
+      - '5432'
+    networks:
+      - backend_network
     volumes:
-      - ./db/init.sql:/docker-entrypoint-initdb.d/create_tables.sql
+      - ./postgres/init.sql:/docker-entrypoint-initdb.d/create_tables.sql
+  backend:
+    build: 
+      context: backend
+    image: backend
+    environment:
+      DB_PASSWORD: "${DB_PASSWORD}"
+      DB_USER: "${DB_USER}"
+      DB_NAME: "${DB_NAME}"
+      DB_PORT: "${DB_PORT}"
+      DB_HOST: "${DB_HOST}"
+    command: npm run start:dev
+    ports:
+      - '3000:3000'
+    networks:
+      - backend_network
+
+networks:
+  backend_network:
+    driver: bridge
