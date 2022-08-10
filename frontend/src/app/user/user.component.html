@@ -1,0 +1,67 @@
+<mat-card>
+    <mat-card-header>
+      <mat-card-title>Contacts</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <table mat-table [dataSource]="dataSource" class="mat-elevation-z8" style="width: 100%;">
+        <ng-container matColumnDef="id">
+          <th mat-header-cell *matHeaderCellDef>ID </th>
+          <td mat-cell *matCellDef="let element"> {{element.id}} </td>
+        </ng-container>
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef>Name </th>
+          <td mat-cell *matCellDef="let element"> {{element.name}} </td>
+        </ng-container>
+        <ng-container matColumnDef="salary">
+          <th mat-header-cell *matHeaderCellDef>Salary </th>
+          <td mat-cell *matCellDef="let element"> {{element.salary}} </td>
+        </ng-container>
+        <ng-container matColumnDef="age">
+          <th mat-header-cell *matHeaderCellDef>Age </th>
+          <td mat-cell *matCellDef="let element"> {{element.age}} </td>
+        </ng-container>
+  
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef> Actions </th>
+          <td mat-cell *matCellDef="let element"> 
+              <button  mat-raised-button (click)="deleteUser(element.id)" color="secondary">Delete Contact</button>
+              <button  mat-raised-button (click)="selectUser(element)" color="secondary">Select Contact</button>
+  
+          </td>
+        </ng-container>
+  
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+  
+    </mat-card-content>
+  </mat-card>
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Create a Contact</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <form #f ="ngForm" class="mat-elevation-z8" style="width: 100%; padding: 5px;">
+  
+        <mat-form-field>
+          <input matInput placeholder="Name" name="name" [(ngModel)] = "user.name" required>
+        </mat-form-field>
+
+        <mat-form-field>
+          <input matInput placeholder="Salary" name="salary" [(ngModel)] = "user.salary" required>
+        </mat-form-field>
+        
+        <mat-form-field>
+          <input matInput placeholder="Age" name="age" [(ngModel)] = "user.age" required>
+        </mat-form-field>
+        
+      </form>
+  
+    </mat-card-content>
+    <mat-card-actions>
+        <button  mat-raised-button *ngIf="!user.id" (click)="createUser(f)" color="primary">Save Contact</button>
+        <button  mat-raised-button *ngIf="user.id" (click)="updateUser(f)" color="primary">Update Contact</button>
+        <button  mat-raised-button (click)="newUser()" color="primary">New..</button>
+        
+    </mat-card-actions>
+  </mat-card>
