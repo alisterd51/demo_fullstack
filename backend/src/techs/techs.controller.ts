@@ -20,7 +20,7 @@ export class TechsController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string): Promise<Tech> {
+  findOne(@Param('id') id: string): Promise<Tech | null> {
     return this.techsService.findOne(+id);
   }
 

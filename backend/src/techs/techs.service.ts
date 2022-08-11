@@ -17,7 +17,7 @@ export class TechsService {
     return this.techRepo.find();
   }
 
-  findOne(id: number): Promise<Tech> {
+  findOne(id: number): Promise<Tech | null> {
     return this.techRepo.findOne({
       where: {id}
     });

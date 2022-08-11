@@ -3,14 +3,14 @@ import { Column, Entity, PrimaryColumn } from "typeorm";
 @Entity()
 export class User {
     @PrimaryColumn()
-    id: number;
+    id: number = 0;
 
     @Column()
-    name: string;
+    name: string = '';
 
     @Column()
-    salary: number;
+    salary: number = 0;
 
     @Column()
-    age: number;
+    age: number = 0;
 }

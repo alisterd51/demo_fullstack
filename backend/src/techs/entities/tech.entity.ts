@@ -3,14 +3,14 @@ import { Column, Entity, PrimaryColumn } from "typeorm";
 @Entity()
 export class Tech {
     @PrimaryColumn()
-    id: number;
+    id: number = 0;
 
     @Column()
-    technoname: string;
+    technoname: string = '';
 
     @Column()
-    category: string;
+    category: string = '';
 
     @Column()
-    details: string;
+    details: string = '';
 }
