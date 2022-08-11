@@ -1,5 +1,4 @@
-# Base image
-FROM node:18
+FROM node:18 As builder
 
 RUN npm install -g npm
 
@@ -18,5 +17,13 @@ COPY . .
 # Creates a "dist" folder with the production build
 RUN npm run build
 
-# Start the server using the production build
-CMD [ "node", "dist/main.js" ]
+
+FROM nginx
+
+WORKDIR /usr/share/nginx/html
+
+RUN rm -rf ./*
+
+COPY --from=builder /usr/src/app/dist/todo-app .
+
+ENTRYPOINT ["nginx", "-g", "daemon off;"]

@@ -32,19 +32,16 @@ services:
     networks:
       - backend_network
 
-#  frontend:
-#    container_name: frontend
-#    build: 
-#      context: frontend
-#    image: frontend
-#    environment:
-#      API_PORT: "${API_PORT}"
-#      API_HOST: "${API_HOST}"
-#    command: npm run start
-#    ports:
-#      - '4200:4200'
-#    networks:
-#      - backend_network
+  frontend:
+    container_name: frontend
+    build: 
+      context: frontend
+    image: frontend
+    environment:
+      API_PORT: "${API_PORT}"
+      API_HOST: "${API_HOST}"
+    ports:
+      - '8080:80'
 
 networks:
   backend_network:
