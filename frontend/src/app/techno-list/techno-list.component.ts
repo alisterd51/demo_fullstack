@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { delay } from 'rxjs';
 import { Technology } from '../models/technology';
 import { ApiService } from '../services/api.service';
 
