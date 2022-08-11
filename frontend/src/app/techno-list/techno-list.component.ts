@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
+import { delay } from 'rxjs';
 import { Technology } from '../models/technology';
-import { TechnoService } from '../services/techno.service';
+import { ApiService } from '../services/api.service';
 
 @Component({
   selector: 'app-techno-list',
@@ -8,20 +9,33 @@ import { TechnoService } from '../services/techno.service';
   styleUrls: ['./techno-list.component.css']
 })
 export class TechnoListComponent implements OnInit {
-  allTechnos: Technology[] = [];
-  constructor(private ts: TechnoService) { }
+  dataSource: Technology[] = [];
+  techno: Technology = {
+    id: 0,
+    technoname: '',
+    category: '',
+    details: ''
+  };
+  //allTechnos!: Observable<Technology[]>;
+  constructor(private apiService: ApiService) { }
 
   ngOnInit(): void {
     this.getTechnos();
   }
 
   getTechnos() {
-    this.allTechnos = this.ts.getTechnos();
+    this.apiService.getTechs().subscribe((result)=>{
+      console.log(result);
+      this.dataSource = result;
+    });
   }
 
-  deleteTechno(techno: Technology) {
+  async deleteTechno(techno: Technology) {
     console.log('deleteTechno', techno);
-    this.ts.deleteTechno(techno);
-    this.allTechnos = this.ts.getTechnos();
+    this.apiService.removeTech(techno.id).subscribe((result)=>{
+      console.log(result);
+    });
+    await new Promise(f => setTimeout(f, 50));//peux mieux faire
+    this.getTechnos();
   }
 }

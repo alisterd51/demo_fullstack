@@ -1,5 +1,5 @@
 export interface Technology {
-    id: number | null;
+    id: number;
     technoname: string;
     category: string;
     details: string;

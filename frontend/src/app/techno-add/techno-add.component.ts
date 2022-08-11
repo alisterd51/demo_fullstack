@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { TechnoService } from '../services/techno.service';
+import { Technology } from '../models/technology';
+import { ApiService } from '../services/api.service';
 
 @Component({
   selector: 'app-techno-add',
@@ -8,14 +9,15 @@ import { TechnoService } from '../services/techno.service';
 })
 export class TechnoAddComponent implements OnInit {
 
-  constructor(private ts: TechnoService) { }
+  constructor(private apiService: ApiService) { }
 
   ngOnInit(): void {
   }
 
-  addTechno(form: any) {
-    // console.log(form.value);
-    this.ts.createTechno(form.value);
+  addTechno(form: { value: Technology; reset: () => void; }) {
+    this.apiService.createTech(form.value).subscribe((result)=>{
+      console.log(result);
+    });
     form.reset();
   }
 }
