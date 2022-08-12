@@ -8,6 +8,9 @@ import { Player } from './players/entities/player.entity';
 import { PlayersModule } from './players/players.module';
 import { TechsModule } from './techs/techs.module';
 import { Tech } from './techs/entities/tech.entity';
+import { AuthModule } from './auth/auth.module';
+import { UsersModule } from './users/users.module';
+import { User } from './users/entities/user.entity';
 
 @Module({
   imports: [
@@ -23,9 +26,11 @@ import { Tech } from './techs/entities/tech.entity';
       username: process.env.DB_USER,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
-      entities: [Player, Tech]
+      entities: [Player, Tech, User]
     }),
-    TechsModule
+    TechsModule,
+    AuthModule,
+    UsersModule
   ],
   controllers: [AppController],
   providers: [AppService],

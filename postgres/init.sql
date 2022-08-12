@@ -10,3 +10,8 @@ CREATE TABLE "tech" (
         Category varchar( 100 )   NOT NULL,
         Details varchar( 100 )    NOT NULL
 );
+CREATE TABLE "user" (
+        Id serial PRIMARY KEY,
+        Username varchar( 100 ) NOT NULL,
+        Password varchar( 100 )   NOT NULL
+);

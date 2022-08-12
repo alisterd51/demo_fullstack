@@ -4,7 +4,7 @@ import { CreatePlayerDto } from './dto/create-player.dto';
 import { UpdatePlayerDto } from './dto/update-player.dto';
 import { Player } from './entities/player.entity';
 
-@Controller('users')
+@Controller('players')
 export class PlayersController {
   constructor(private readonly usersService: PlayersService) {}
 
