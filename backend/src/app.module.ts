@@ -4,15 +4,15 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TodosModule } from './todos/todos.module';
-import { User } from './users/entities/user.entity';
-import { UsersModule } from './users/users.module';
+import { Player } from './players/entities/player.entity';
+import { PlayersModule } from './players/players.module';
 import { TechsModule } from './techs/techs.module';
 import { Tech } from './techs/entities/tech.entity';
 
 @Module({
   imports: [
     TodosModule,
-    UsersModule,
+    PlayersModule,
     ConfigModule.forRoot({
       envFilePath: '.env'
     }),
@@ -23,7 +23,7 @@ import { Tech } from './techs/entities/tech.entity';
       username: process.env.DB_USER,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
-      entities: [User, Tech]
+      entities: [Player, Tech]
     }),
     TechsModule
   ],
