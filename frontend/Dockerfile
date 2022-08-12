@@ -26,4 +26,6 @@ RUN rm -rf ./*
 
 COPY --from=builder /usr/src/app/dist/todo-app .
 
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
 ENTRYPOINT ["nginx", "-g", "daemon off;"]
