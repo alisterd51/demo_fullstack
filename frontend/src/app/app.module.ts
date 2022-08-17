@@ -9,6 +9,7 @@ import { HomeComponent } from './home/home.component';
 import { TechnoAddComponent } from './techno-add/techno-add.component';
 import { TechnoListComponent } from './techno-list/techno-list.component';
 import { TechnoDetailsComponent } from './techno-details/techno-details.component';
+import { PongComponent } from './pong/pong.component';
 
 @NgModule({
   declarations: [
@@ -16,7 +17,8 @@ import { TechnoDetailsComponent } from './techno-details/techno-details.componen
     HomeComponent,
     TechnoAddComponent,
     TechnoListComponent,
-    TechnoDetailsComponent
+    TechnoDetailsComponent,
+    PongComponent
   ],
   imports: [
     BrowserModule,
