@@ -3,4 +3,5 @@ export interface IBall {
     top: number;
     left: number;
     speed: number[];
+    diameter: number;
 }

@@ -6,10 +6,11 @@ import { IRacket } from './interfaces/racket.interface';
 const interval_tick = 16;
 const racketHeight = 200;
 const racketWidth = 50;
-const gameHeight = 490;
-const gameWidth = 500;
+const gameHeight = 990;
+const gameWidth = 1000;
 const gameMargin = 10;
 const ballDiameter = 50;
+const racketSpeed = 11;
 
 @Component({
   selector: 'app-pong',
@@ -35,14 +36,19 @@ export class PongComponent implements OnInit {
     toUp: false,
     toDown: false
   };
+  ball: IBall = {
+    backgroundColor: 'yellow',
+    top: (gameHeight / 2) - (ballDiameter / 2),
+    left: (gameWidth / 2) - (ballDiameter / 2),
+    speed: [this.getRandomInT(2) ? -3 : 3, this.getRandomInT(2) ? -3 : 3],
+    diameter: ballDiameter
+  };
 
   game_title = "FT PONG";
+  gameHeight = gameHeight;
+  gameWidth = gameWidth;
   left_score = 0;
   right_score = 0;
-  //ball position
-  top_ball = (gameHeight / 2) - (ballDiameter / 2);
-  left_ball = (gameWidth / 2) - (ballDiameter / 2);
-  speed_ball: number[] = [1, 1];
 
   //pong gamer left
   left_up = "w";
@@ -54,11 +60,6 @@ export class PongComponent implements OnInit {
 
   fup$ = fromEvent<KeyboardEvent>(window, "keyup");
   fdown$ = fromEvent<KeyboardEvent>(window, "keydown");
-
-  // interval:
-  //  interval(1000).subscribe(reaction);
-  // event:
-  //  event.subscribe(reaction);
 
   constructor() {
   }
@@ -103,44 +104,55 @@ export class PongComponent implements OnInit {
 
   moveRacket(racket: IRacket): void {
     if (racket.toDown && !racket.toUp
-      && racket.top + 5 <= gameHeight - racket.height)  {
-      racket.top += 5;
+      && racket.top + racketSpeed <= gameHeight - racket.height)  {
+      racket.top += racketSpeed;
     } else if (!racket.toDown && racket.toUp
-      && racket.top - 5 >= 0) {
-        racket.top -= 5;
+      && racket.top - racketSpeed >= 0) {
+        racket.top -= racketSpeed;
     }
   }
 
   tick(): void {
     this.moveRacket(this.r_r);
     this.moveRacket(this.r_l);
+    this.moveBall();
+    this.wallColision();
+    this.racketColision();
+    this.updateScore();
+  }
 
-    this.top_ball += this.speed_ball[0];
-    this.left_ball += this.speed_ball[1];
-    if (this.left_ball < 0 - ballDiameter) {
-      this.left_score++;
-      this.newBall();
-    } else if (this.left_ball > gameWidth) {
+  updateScore(): void {
+    if (this.ball.left < 0 - ballDiameter) {
       this.right_score++;
-      this.newBall();
+      this.ball = this.nBall();
+    } else if (this.ball.left > gameWidth) {
+      this.left_score++;
+      this.ball = this.nBall();
     }
-    // ball en bas ou en haut
-    if (this.top_ball <= 0 || this.top_ball + 50 >= gameHeight) {
-      this.speed_ball[0] *= -1;
+  }
+
+  moveBall(): void {
+    this.ball.top += this.ball.speed[0];
+    this.ball.left += this.ball.speed[1];
+  }
+
+  wallColision(): void {
+    if (this.ball.top <= 0 || this.ball.top + this.ball.diameter >= gameHeight) {
+      this.ball.speed[0] *= -1;
     }
-    // collision avec raquete gauche
-    // left_ball <= marge gauche + width_ball
-    // || left_ball + width_ball >= width_scene - marge droite - width_racket
-    if ((this.speed_ball[1] < 0
-        && this.left_ball <= gameMargin + this.r_l.width
-        && this.top_ball + ballDiameter >= this.r_l.top
-        && this.top_ball <= this.r_l.top + racketHeight)
-      || (this.speed_ball[1] > 0
-        && this.left_ball + ballDiameter >= this.r_r.left
-        && this.top_ball + ballDiameter >= this.r_r.top
-        && this.top_ball <= this.r_r.top + racketHeight)){
-      this.speed_ball[1] *= -1.1;
-      this.speed_ball[0] *= 1.1;
+  }
+
+  racketColision(): void {
+    if ((this.ball.speed[1] < 0
+    && this.ball.left <= gameMargin + this.r_l.width
+    && this.ball.top + ballDiameter >= this.r_l.top
+    && this.ball.top <= this.r_l.top + racketHeight)
+    || (this.ball.speed[1] > 0
+    && this.ball.left + ballDiameter >= this.r_r.left
+    && this.ball.top + ballDiameter >= this.r_r.top
+    && this.ball.top <= this.r_r.top + racketHeight)) {
+      this.ball.speed[1] *= -1.1;
+      this.ball.speed[0] *= 1.1;
     }
   }
 
@@ -148,18 +160,13 @@ export class PongComponent implements OnInit {
     return Math.floor(Math.random() * max);
   }
 
-  newBall(): void {
-    this.top_ball = (gameHeight / 2) - (ballDiameter / 2);
-    this.left_ball = (gameWidth / 2) - (ballDiameter / 2);
-    this.speed_ball = [this.getRandomInT(2) ? -1 : 1, this.getRandomInT(2) ? -1 : 1];
-  }
-
   nBall(): IBall {
     const newBall: IBall = {
-      backgroundColor: '',
-      top: 0,
-      left: 0,
-      speed: []
+      backgroundColor: 'yellow',
+      top: (gameHeight / 2) - (ballDiameter / 2),
+      left: (gameWidth / 2) - (ballDiameter / 2),
+      speed: [this.getRandomInT(2) ? -3 : 3, this.getRandomInT(2) ? -3 : 3],
+      diameter: ballDiameter
     };
     return newBall;
   }

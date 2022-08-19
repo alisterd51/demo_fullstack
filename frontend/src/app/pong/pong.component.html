@@ -1,5 +1,8 @@
 <h3>{{game_title}}</h3>
-<div class="pong-game">
+<div class="pong-game" [ngStyle]="{
+    'height': gameHeight + 'px',
+    'width': gameWidth + 'px'
+}">
     <div class="net"></div>
     <div class="score" id="left-score">{{left_score}}</div>
     <div class="score" id="right-score">{{right_score}}</div>
@@ -17,7 +20,11 @@
         'height': r_r.height + 'px',
         'width': r_r.width + 'px'
     }"></div>
-    <div class="ball" [ngStyle]="{'top': top_ball + 'px', 'left': left_ball + 'px'}"></div>
+    <div class="ball" [ngStyle]="{
+        'background-color': ball.backgroundColor,
+        'height': ball.diameter + 'px',
+        'width': ball.diameter + 'px',
+        'top': ball.top + 'px',
+        'left': ball.left + 'px'
+    }"></div>
 </div>
-
-<div [ngStyle]="{'color': r_l.backgroundColor}">abc</div>
