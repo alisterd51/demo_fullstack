@@ -3,7 +3,21 @@
     <div class="net"></div>
     <div class="score" id="left-score">{{left_score}}</div>
     <div class="score" id="right-score">{{right_score}}</div>
-    <div class="racket" id="left-racket"></div>
-    <div class="racket" id="right-racket"></div>
-    <div class="ball"></div>
+    <div class="racket" id="left-racket" [ngStyle]="{
+        'background-color': r_l.backgroundColor + 'px',
+        'top': r_l.top + 'px',
+        'left': r_l.left + 'px',
+        'height': r_l.height + 'px',
+        'width': r_l.width + 'px'
+    }"></div>
+    <div class="racket" id="right-racket" [ngStyle]="{
+        'background-color': r_r.backgroundColor + 'px',
+        'top': r_r.top + 'px',
+        'left': r_r.left + 'px',
+        'height': r_r.height + 'px',
+        'width': r_r.width + 'px'
+    }"></div>
+    <div class="ball" [ngStyle]="{'top': top_ball + 'px', 'left': left_ball + 'px'}"></div>
 </div>
+
+<div [ngStyle]="{'color': r_l.backgroundColor}">abc</div>
