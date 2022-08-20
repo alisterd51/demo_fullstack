@@ -3,17 +3,22 @@ import { filter, fromEvent, interval } from 'rxjs';
 import { IBall } from './interfaces/ball.interface';
 import { IRacket } from './interfaces/racket.interface';
 
-const interval_tick = 16;
+const interval_tick = 16;//16
 const racketHeight = 200;
 const racketWidth = 50;
 const gameHeight = 990;
 const gameWidth = 1000;
 const gameMargin = 10;
 const ballDiameter = 20;
-const racketSpeed = 11;
-const ballSpeed = 20;
-const ballStartSpeed = Math.sqrt(ballSpeed * ballSpeed / 8);
-const iaPlayer = true;
+const racketSpeed = 11;//11
+const ballSpeed = 20;//20
+const ballStartSpeed = Math.sqrt(ballSpeed * ballSpeed / 20);
+const iaPlayer1 = true;
+const iaPlayer2 = true;
+const defaultKeyUpPlayer1 = "w";
+const defaultKeyDownPlayer1 = "s";
+const defaultKeyUpPlayer2 = "ArrowUp";
+const defaultKeyDownPlayer2 = "ArrowDown";
 
 @Component({
   selector: 'app-pong',
@@ -28,7 +33,10 @@ export class PongComponent implements OnInit {
     height: racketHeight,
     width: racketWidth,
     toUp: false,
-    toDown: false
+    toDown: false,
+    toUpKey: defaultKeyUpPlayer1,
+    toDownKey: defaultKeyDownPlayer1,
+    ia: false
   };
   r_r: IRacket = {
     backgroundColor: "red",
@@ -37,12 +45,17 @@ export class PongComponent implements OnInit {
     height: racketHeight,
     width: racketWidth,
     toUp: false,
-    toDown: false
+    toDown: false,
+    toUpKey: defaultKeyUpPlayer2,
+    toDownKey: defaultKeyDownPlayer2,
+    ia: false
   };
   ball: IBall = {
     backgroundColor: 'yellow',
     top: (gameHeight / 2) - (ballDiameter / 2),
     left: (gameWidth / 2) - (ballDiameter / 2),
+    // [0]: avance y
+    // [1]: avance x
     speed: [
       this.getRandomInT(2) ? -ballStartSpeed : ballStartSpeed,
       this.getRandomInT(2) ? -ballStartSpeed : ballStartSpeed
@@ -57,12 +70,12 @@ export class PongComponent implements OnInit {
   right_score = 0;
 
   //pong gamer left
-  left_up = "w";
-  left_down = "s";
+  left_up = defaultKeyUpPlayer1;
+  left_down = defaultKeyDownPlayer1;
 
   //pong gamer right
-  right_up = "ArrowUp";
-  right_down = "ArrowDown";
+  right_up = defaultKeyUpPlayer2;
+  right_down = defaultKeyDownPlayer2;
 
   fup$ = fromEvent<KeyboardEvent>(window, "keyup");
   fdown$ = fromEvent<KeyboardEvent>(window, "keydown");
@@ -117,10 +130,15 @@ export class PongComponent implements OnInit {
   }
 
   tick(): void {
-    if (iaPlayer) {
+    if (iaPlayer1) {
       const key = this.iaBasic(this.ball.top + (this.ball.diameter / 2), this.r_l.top + (this.r_l.height / 2));
       this.r_l.toUp = key[0];
       this.r_l.toDown = key[1];
+    }
+    if (iaPlayer2) {
+      const key = this.iav1(this.ball, this.r_r);
+      this.r_r.toUp = key[0];
+      this.r_r.toDown = key[1];
     }
     this.moveRacket(this.r_r);
     this.moveRacket(this.r_l);
@@ -185,13 +203,13 @@ export class PongComponent implements OnInit {
     if (centerBall[0] < centerRacket[0]) {
       vitesse *= -1;
     }
-    if (angle > 0.4 * Math.PI &&  angle < 0.6 * Math.PI) {
+    if (angle > 0.4 * Math.PI && angle < 0.6 * Math.PI) {
       if (angle < Math.PI / 2) {
         angle = 0.4 * Math.PI;
       } else {
         angle = 0.6 * Math.PI;
       }
-    } else if (angle < 0.4 * -Math.PI &&  angle > 0.6 * -Math.PI) {
+    } else if (angle < 0.4 * -Math.PI && angle > 0.6 * -Math.PI) {
       if (angle > -Math.PI / 2) {
         angle = 0.4 * -Math.PI;
       } else {
@@ -220,12 +238,64 @@ export class PongComponent implements OnInit {
   }
 
   iaBasic(centerBall: number, centerRacket: number): boolean[] {
-    if (centerBall > centerRacket) {
+    if (centerBall > centerRacket + racketHeight / 4) {
       return [false, true];
-    } else if (centerBall < centerRacket) {
+    } else if (centerBall < centerRacket - racketHeight / 4) {
       return [true, false];
     } else {
       return [false, false];
+    }
+  }
+
+  ballTopPrediction(ball: IBall, racket: IRacket): number {
+    const angle = Math.atan(ball.speed[0] / ball.speed[1]);
+    const adj = ball.left + (ball.diameter / 2) - (racket.left + (racket.width / 2));
+    const diffBallTop = Math.tan(angle) * Math.abs(adj);
+    const predictTop = ball.top + diffBallTop;
+    if (predictTop < 0 || predictTop > gameHeight) {
+      const angleRenver = Math.PI / 2 - angle;
+      if (ball.speed[0] > 0) {
+        const angleRenver = Math.PI / 2 - angle;
+        const distYWall = gameHeight - ball.top - ball.diameter;
+        const distXWall = Math.tan(angleRenver) * distYWall;
+        const newBall: IBall = {
+          backgroundColor: '',
+          top: distYWall + ball.top,
+          left: distXWall + ball.left,
+          speed: [-ball.speed[0], ball.speed[1]],
+          diameter: ball.diameter
+        };
+        return this.ballTopPrediction(newBall, racket);
+      } else {
+        const angleRenver = angle + Math.PI / 2;
+        const distYWall = ball.top;
+        const distXWall = Math.tan(angleRenver) * distYWall;
+        const newBall: IBall = {
+          backgroundColor: '',
+          top: distYWall - ball.top,
+          left: distXWall + ball.left,
+          speed: [-ball.speed[0], ball.speed[1]],
+          diameter: ball.diameter
+        };
+        return this.ballTopPrediction(newBall, racket);
+      }
+    }
+    return predictTop;
+  }
+
+  iav1(ball: IBall, racket: IRacket): boolean[] {
+    const centerBall = ball.top + (ball.diameter / 2);
+    const centerRacket = racket.top + (racket.height / 2);
+    if ((ball.speed[1] > 0 && ball.left > racket.left)
+        || (ball.speed[1] < 0 &&  ball.left < racket.left)) {
+      return this.iaBasic(gameHeight / 2, centerRacket);
+    } else {
+      const predictTop = this.ballTopPrediction(ball, racket);
+      if (predictTop < 0 || predictTop > gameHeight) {
+        return this.iaBasic(gameHeight / 2, centerRacket);
+      } else {
+        return this.iaBasic(predictTop, centerRacket);
+      }
     }
   }
 }

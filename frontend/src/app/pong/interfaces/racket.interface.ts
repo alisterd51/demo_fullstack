@@ -6,4 +6,7 @@ export interface IRacket {
     width: number;
     toUp: boolean;
     toDown: boolean;
+    toUpKey: string;
+    toDownKey: string;
+    ia: boolean;
 }
