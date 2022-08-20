@@ -10,8 +10,10 @@ const gameHeight = 990;
 const gameWidth = 1000;
 const gameMargin = 10;
 const ballDiameter = 20;
-const racketSpeed = 10;
-const ballSpeed = 10;
+const racketSpeed = 11;
+const ballSpeed = 20;
+const ballStartSpeed = Math.sqrt(ballSpeed * ballSpeed / 8);
+const iaPlayer = true;
 
 @Component({
   selector: 'app-pong',
@@ -41,7 +43,10 @@ export class PongComponent implements OnInit {
     backgroundColor: 'yellow',
     top: (gameHeight / 2) - (ballDiameter / 2),
     left: (gameWidth / 2) - (ballDiameter / 2),
-    speed: [this.getRandomInT(2) ? -3 : 3, this.getRandomInT(2) ? -3 : 3],
+    speed: [
+      this.getRandomInT(2) ? -ballStartSpeed : ballStartSpeed,
+      this.getRandomInT(2) ? -ballStartSpeed : ballStartSpeed
+    ],
     diameter: ballDiameter
   };
 
@@ -70,11 +75,9 @@ export class PongComponent implements OnInit {
       this.tick();
     });
     this.fup$.pipe(filter(event => !event.repeat)).subscribe((event) => {
-      //console.log("up", event.key);
       this.toUp(event.key);
     });
     this.fdown$.pipe(filter(event => !event.repeat)).subscribe((event) => {
-      //console.log("down", event.key);
       this.toDown(event.key);
     });
   }
@@ -114,6 +117,11 @@ export class PongComponent implements OnInit {
   }
 
   tick(): void {
+    if (iaPlayer) {
+      const key = this.iaBasic(this.ball.top + (this.ball.diameter / 2), this.r_l.top + (this.r_l.height / 2));
+      this.r_l.toUp = key[0];
+      this.r_l.toDown = key[1];
+    }
     this.moveRacket(this.r_r);
     this.moveRacket(this.r_l);
     this.moveBall();
@@ -163,34 +171,31 @@ export class PongComponent implements OnInit {
   }
 
   rColision(racket: IRacket): void {
-    //angle BAC B centre de la ball A est le centre de la racket
-    let b = [this.ball.left + (this.ball.diameter / 2), this.ball.top + (this.ball.diameter / 2)];
-    let a = [racket.left + (racket.width / 2), racket.top + (racket.height / 2)];
-    let angle = Math.atan((b[1] - a[1]) / (b[0] - a[0]));
-    console.log("angle:", angle);
-    // vitesse demamder 5px par tick
-    // viresse en cours Hypoténuse soit racine de v[0]2 + v[1]2
-    // angle = atan(y / x)
-    // je connais angle et hypotenuse et je veux adj et op
-    //cos(a) = adj/hyp
-    // soit adj = cos(a) * hyp
-    //sin(a) = opp/hyp
-    // soit opp = sin(a) * hyp
+    // B centre de la ball A est le centre de la racket
+    const centerBall = [
+      this.ball.left + (this.ball.diameter / 2),
+      this.ball.top + (this.ball.diameter / 2)
+    ];
+    const centerRacket = [
+      racket.left + (racket.width / 2),
+      racket.top + (racket.height / 2)
+    ];
+    let angle = Math.atan((centerBall[1] - centerRacket[1]) / (centerBall[0] - centerRacket[0]));
     let vitesse = ballSpeed;
-    if (b[0] < a[0]) {
+    if (centerBall[0] < centerRacket[0]) {
       vitesse *= -1;
     }
-    if (angle > 4 * Math.PI / 10 &&  angle < 6 * Math.PI / 10) {
+    if (angle > 0.4 * Math.PI &&  angle < 0.6 * Math.PI) {
       if (angle < Math.PI / 2) {
-        angle = 4 * Math.PI / 10;
+        angle = 0.4 * Math.PI;
       } else {
-        angle = 6 * Math.PI / 10;
+        angle = 0.6 * Math.PI;
       }
-    } else if (angle < 4 * -Math.PI / 10 &&  angle > 6 * -Math.PI / 10) {
+    } else if (angle < 0.4 * -Math.PI &&  angle > 0.6 * -Math.PI) {
       if (angle > -Math.PI / 2) {
-        angle = 4 * -Math.PI / 10;
+        angle = 0.4 * -Math.PI;
       } else {
-        angle = 6 * -Math.PI / 10;
+        angle = 0.6 * -Math.PI;
       }
     }
     this.ball.speed = [Math.sin(angle) * vitesse, Math.cos(angle) * vitesse];
@@ -205,9 +210,22 @@ export class PongComponent implements OnInit {
       backgroundColor: 'yellow',
       top: (gameHeight / 2) - (ballDiameter / 2),
       left: (gameWidth / 2) - (ballDiameter / 2),
-      speed: [this.getRandomInT(2) ? -3 : 3, this.getRandomInT(2) ? -3 : 3],
+      speed: [
+        this.getRandomInT(2) ? -ballStartSpeed : ballStartSpeed,
+        this.getRandomInT(2) ? -ballStartSpeed : ballStartSpeed
+      ],
       diameter: ballDiameter
     };
     return newBall;
+  }
+
+  iaBasic(centerBall: number, centerRacket: number): boolean[] {
+    if (centerBall > centerRacket) {
+      return [false, true];
+    } else if (centerBall < centerRacket) {
+      return [true, false];
+    } else {
+      return [false, false];
+    }
   }
 }
