@@ -9,8 +9,9 @@ const racketWidth = 50;
 const gameHeight = 990;
 const gameWidth = 1000;
 const gameMargin = 10;
-const ballDiameter = 50;
-const racketSpeed = 11;
+const ballDiameter = 20;
+const racketSpeed = 10;
+const ballSpeed = 10;
 
 @Component({
   selector: 'app-pong',
@@ -137,23 +138,62 @@ export class PongComponent implements OnInit {
   }
 
   wallColision(): void {
-    if (this.ball.top <= 0 || this.ball.top + this.ball.diameter >= gameHeight) {
+    if (this.ball.top <= 0) {
+      this.ball.top = 0;
+      this.ball.speed[0] *= -1;
+    } else if (this.ball.top + this.ball.diameter >= gameHeight) {
+      this.ball.top = gameHeight - this.ball.diameter;
       this.ball.speed[0] *= -1;
     }
   }
 
   racketColision(): void {
-    if ((this.ball.speed[1] < 0
-    && this.ball.left <= gameMargin + this.r_l.width
-    && this.ball.top + ballDiameter >= this.r_l.top
-    && this.ball.top <= this.r_l.top + racketHeight)
-    || (this.ball.speed[1] > 0
-    && this.ball.left + ballDiameter >= this.r_r.left
-    && this.ball.top + ballDiameter >= this.r_r.top
-    && this.ball.top <= this.r_r.top + racketHeight)) {
-      this.ball.speed[1] *= -1.1;
-      this.ball.speed[0] *= 1.1;
+    if (this.ball.left < gameWidth / 2
+        && this.ball.left <= gameMargin + this.r_l.width
+        && this.ball.left + this.ball.diameter >= gameMargin
+        && this.ball.top + ballDiameter >= this.r_l.top
+        && this.ball.top <= this.r_l.top + racketHeight) {
+      this.rColision(this.r_l);
+    } else if (this.ball.left + ballDiameter >= this.r_r.left
+        && this.ball.left <= this.r_r.left + this.r_r.width
+        && this.ball.top + ballDiameter >= this.r_r.top
+        && this.ball.top <= this.r_r.top + racketHeight) {
+      this.rColision(this.r_r);
     }
+  }
+
+  rColision(racket: IRacket): void {
+    //angle BAC B centre de la ball A est le centre de la racket
+    let b = [this.ball.left + (this.ball.diameter / 2), this.ball.top + (this.ball.diameter / 2)];
+    let a = [racket.left + (racket.width / 2), racket.top + (racket.height / 2)];
+    let angle = Math.atan((b[1] - a[1]) / (b[0] - a[0]));
+    console.log("angle:", angle);
+    // vitesse demamder 5px par tick
+    // viresse en cours Hypoténuse soit racine de v[0]2 + v[1]2
+    // angle = atan(y / x)
+    // je connais angle et hypotenuse et je veux adj et op
+    //cos(a) = adj/hyp
+    // soit adj = cos(a) * hyp
+    //sin(a) = opp/hyp
+    // soit opp = sin(a) * hyp
+    let vitesse = ballSpeed;
+    if (b[0] < a[0]) {
+      vitesse *= -1;
+    }
+    if (angle > 4 * Math.PI / 10 &&  angle < 6 * Math.PI / 10) {
+      if (angle < Math.PI / 2) {
+        angle = 4 * Math.PI / 10;
+      } else {
+        angle = 6 * Math.PI / 10;
+      }
+    } else if (angle < 4 * -Math.PI / 10 &&  angle > 6 * -Math.PI / 10) {
+      if (angle > -Math.PI / 2) {
+        angle = 4 * -Math.PI / 10;
+      } else {
+        angle = 6 * -Math.PI / 10;
+      }
+    }
+    this.ball.speed = [Math.sin(angle) * vitesse, Math.cos(angle) * vitesse];
   }
 
   getRandomInT(max: number): number {
