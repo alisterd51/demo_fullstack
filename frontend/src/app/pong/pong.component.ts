@@ -13,12 +13,12 @@ const ballDiameter = 20;
 const racketSpeed = 11;//11
 const ballSpeed = 20;//20
 const ballStartSpeed = Math.sqrt(ballSpeed * ballSpeed / 20);
-const iaPlayer1 = true;
-const iaPlayer2 = true;
 const defaultKeyUpPlayer1 = "w";
 const defaultKeyDownPlayer1 = "s";
 const defaultKeyUpPlayer2 = "ArrowUp";
 const defaultKeyDownPlayer2 = "ArrowDown";
+const defaultColorRacketPlayer1 = "blue";
+const defaultColorRacketPlayer2 = "red";
 
 @Component({
   selector: 'app-pong',
@@ -27,7 +27,7 @@ const defaultKeyDownPlayer2 = "ArrowDown";
 })
 export class PongComponent implements OnInit {
   r_l: IRacket = {
-    backgroundColor: "blue",
+    backgroundColor: defaultColorRacketPlayer1,
     top: gameMargin,
     left: gameMargin,
     height: racketHeight,
@@ -39,7 +39,7 @@ export class PongComponent implements OnInit {
     ia: false
   };
   r_r: IRacket = {
-    backgroundColor: "red",
+    backgroundColor: defaultColorRacketPlayer2,
     top: gameMargin,
     left: gameWidth - gameMargin - racketWidth,
     height: racketHeight,
@@ -69,14 +69,6 @@ export class PongComponent implements OnInit {
   left_score = 0;
   right_score = 0;
 
-  //pong gamer left
-  left_up = defaultKeyUpPlayer1;
-  left_down = defaultKeyDownPlayer1;
-
-  //pong gamer right
-  right_up = defaultKeyUpPlayer2;
-  right_down = defaultKeyDownPlayer2;
-
   fup$ = fromEvent<KeyboardEvent>(window, "keyup");
   fdown$ = fromEvent<KeyboardEvent>(window, "keydown");
 
@@ -96,25 +88,25 @@ export class PongComponent implements OnInit {
   }
 
   toUp(key: string) {
-    if (key === this.right_up) {
+    if (key === this.r_r.toUpKey) {
       this.r_r.toUp = false;
-    } else if (key === this.right_down) {
+    } else if (key === this.r_r.toDownKey) {
       this.r_r.toDown = false;
-    } else if (key === this.left_up) {
+    } else if (key === this.r_l.toUpKey) {
       this.r_l.toUp = false;
-    } else if (key === this.left_down) {
+    } else if (key === this.r_l.toDownKey) {
       this.r_l.toDown = false;
     }
   }
 
   toDown(key: string) {
-    if (key === this.right_up) {
+    if (key === this.r_r.toUpKey) {
       this.r_r.toUp = true;
-    } else if (key === this.right_down) {
+    } else if (key === this.r_r.toDownKey) {
       this.r_r.toDown = true;
-    } else if (key === this.left_up) {
+    } else if (key === this.r_l.toUpKey) {
       this.r_l.toUp = true;
-    } else if (key === this.left_down) {
+    } else if (key === this.r_l.toDownKey) {
       this.r_l.toDown = true;
     }
   }
@@ -130,12 +122,12 @@ export class PongComponent implements OnInit {
   }
 
   tick(): void {
-    if (iaPlayer1) {
+    if (this.r_l.ia) {
       const key = this.iaBasic(this.ball.top + (this.ball.diameter / 2), this.r_l.top + (this.r_l.height / 2));
       this.r_l.toUp = key[0];
       this.r_l.toDown = key[1];
     }
-    if (iaPlayer2) {
+    if (this.r_r.ia) {
       const key = this.iav1(this.ball, this.r_r);
       this.r_r.toUp = key[0];
       this.r_r.toDown = key[1];
