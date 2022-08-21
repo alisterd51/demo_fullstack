@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { HttpClientModule } from '@angular/common/http';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
 
 import { AppRoutingModule } from './app-routing.module';
@@ -10,6 +10,7 @@ import { TechnoAddComponent } from './techno-add/techno-add.component';
 import { TechnoListComponent } from './techno-list/techno-list.component';
 import { TechnoDetailsComponent } from './techno-details/techno-details.component';
 import { PongComponent } from './pong/pong.component';
+import { PongConfigComponent } from './pong-config/pong-config.component';
 
 @NgModule({
   declarations: [
@@ -18,13 +19,15 @@ import { PongComponent } from './pong/pong.component';
     TechnoAddComponent,
     TechnoListComponent,
     TechnoDetailsComponent,
-    PongComponent
+    PongComponent,
+    PongConfigComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     HttpClientModule,
-    FormsModule
+    FormsModule,
+    ReactiveFormsModule
   ],
   providers: [],
   bootstrap: [AppComponent]

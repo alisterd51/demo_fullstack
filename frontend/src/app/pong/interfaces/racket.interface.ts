@@ -1,4 +1,5 @@
 export interface IRacket {
+    playerName: string;
     backgroundColor: string;
     top: number;
     left: number;

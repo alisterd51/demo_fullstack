@@ -7,14 +7,14 @@
     <div class="score" id="left-score">{{left_score}}</div>
     <div class="score" id="right-score">{{right_score}}</div>
     <div class="racket" id="left-racket" [ngStyle]="{
-        'background-color': r_l.backgroundColor + 'px',
+        'background-color': r_l.backgroundColor,
         'top': r_l.top + 'px',
         'left': r_l.left + 'px',
         'height': r_l.height + 'px',
         'width': r_l.width + 'px'
     }"></div>
     <div class="racket" id="right-racket" [ngStyle]="{
-        'background-color': r_r.backgroundColor + 'px',
+        'background-color': r_r.backgroundColor,
         'top': r_r.top + 'px',
         'left': r_r.left + 'px',
         'height': r_r.height + 'px',
@@ -28,3 +28,14 @@
         'left': ball.left + 'px'
     }"></div>
 </div>
+
+<div>
+    <label for="start">start: </label>
+    <input type="checkbox" name="start" id="start" [(ngModel)]="start">
+</div>
+<div>
+    <button (click)="reset()">reset</button>
+</div>
+
+<app-pong-config [player]="r_l"></app-pong-config>
+<app-pong-config [player]="r_r"></app-pong-config>
