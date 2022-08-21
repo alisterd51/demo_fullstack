@@ -2,11 +2,11 @@ import { Component, Input, OnInit } from '@angular/core';
 import { IRacket } from '../pong/interfaces/racket.interface';
 
 @Component({
-  selector: 'app-pong-config',
-  templateUrl: './pong-config.component.html',
-  styleUrls: ['./pong-config.component.css']
+  selector: 'app-pong-racket',
+  templateUrl: './pong-racket.component.html',
+  styleUrls: ['./pong-racket.component.css']
 })
-export class PongConfigComponent implements OnInit {
+export class PongRacketComponent implements OnInit {
   @Input()
   player!: IRacket;
 

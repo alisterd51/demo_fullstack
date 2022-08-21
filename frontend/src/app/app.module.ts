@@ -10,7 +10,9 @@ import { TechnoAddComponent } from './techno-add/techno-add.component';
 import { TechnoListComponent } from './techno-list/techno-list.component';
 import { TechnoDetailsComponent } from './techno-details/techno-details.component';
 import { PongComponent } from './pong/pong.component';
-import { PongConfigComponent } from './pong-config/pong-config.component';
+import { PongRacketComponent } from './pong-racket/pong-racket.component';
+import { PongGameComponent } from './pong-game/pong-game.component';
+import { PongBallComponent } from './pong-ball/pong-ball.component';
 
 @NgModule({
   declarations: [
@@ -20,7 +22,9 @@ import { PongConfigComponent } from './pong-config/pong-config.component';
     TechnoListComponent,
     TechnoDetailsComponent,
     PongComponent,
-    PongConfigComponent
+    PongRacketComponent,
+    PongGameComponent,
+    PongBallComponent
   ],
   imports: [
     BrowserModule,

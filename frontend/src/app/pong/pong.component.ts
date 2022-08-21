@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { filter, fromEvent, interval } from 'rxjs';
 import { IBall } from './interfaces/ball.interface';
+import { IGame } from './interfaces/game.interface';
 import { IRacket } from './interfaces/racket.interface';
 
 const interval_tick = 8;//16
@@ -17,10 +18,15 @@ const defaultKeyUpPlayer1 = "w";
 const defaultKeyDownPlayer1 = "s";
 const defaultKeyUpPlayer2 = "ArrowUp";
 const defaultKeyDownPlayer2 = "ArrowDown";
-const defaultColorRacketPlayer1 = "blue";
-const defaultColorRacketPlayer2 = "red";
+const defaultColorRacketPlayer1 = "#5a74c4";
+const defaultColorRacketPlayer2 = "#a43737";
+const keyStart = " ";
 const scoreToWin = 11;//11
 const defaultLeverAi = 2;
+//un joueur peut etre de trois type:
+//un joueur local       represente par une config clavier
+//un joueur/ia distant  represente par un uid
+//une ia local          represente par un niveau
 
 @Component({
   selector: 'app-pong',
@@ -28,6 +34,12 @@ const defaultLeverAi = 2;
   styleUrls: ['./pong.component.css']
 })
 export class PongComponent implements OnInit {
+  game: IGame = {
+    racketSpeed: racketSpeed,
+    ballSpeed: ballSpeed,
+    backgroundColor: '#000000',
+    scoreToWin: scoreToWin
+  };
   r_l: IRacket = {
     backgroundColor: defaultColorRacketPlayer1,
     top: gameMargin,
@@ -38,9 +50,10 @@ export class PongComponent implements OnInit {
     toDown: false,
     toUpKey: defaultKeyUpPlayer1,
     toDownKey: defaultKeyDownPlayer1,
-    ia: true,
     playerName: '',
-    levelAi: defaultLeverAi
+    levelAi: defaultLeverAi,
+    mode: 'local',
+    uid: 0
   };
   r_r: IRacket = {
     backgroundColor: defaultColorRacketPlayer2,
@@ -52,12 +65,13 @@ export class PongComponent implements OnInit {
     toDown: false,
     toUpKey: defaultKeyUpPlayer2,
     toDownKey: defaultKeyDownPlayer2,
-    ia: true,
     playerName: '',
-    levelAi: defaultLeverAi
+    levelAi: defaultLeverAi,
+    mode: 'local',
+    uid: 0
   };
   ball: IBall = {
-    backgroundColor: 'yellow',
+    backgroundColor: '#e5e83b',
     top: (gameHeight / 2) - (ballDiameter / 2),
     left: (gameWidth / 2) - (ballDiameter / 2),
     // [0]: avance y
@@ -117,7 +131,9 @@ export class PongComponent implements OnInit {
   }
 
   toDown(key: string) {
-    if (key === this.r_r.toUpKey) {
+    if (key === keyStart) {
+      this.start = !this.start;
+    } else if (key === this.r_r.toUpKey) {
       this.r_r.toUp = true;
     } else if (key === this.r_r.toDownKey) {
       this.r_r.toDown = true;
@@ -140,32 +156,35 @@ export class PongComponent implements OnInit {
 
   tick(): void {
     if (this.start && this.win() == null) {
-      if (this.r_l.ia) {
-        let key: boolean[];
-        if (this.r_l.levelAi == 1) {
-          key = this.iaBasic(this.ball, this.r_l);
-        } else {
-          key = this.iav1(this.ball, this.r_l);
-        }
-        this.r_l.toUp = key[0];
-        this.r_l.toDown = key[1];
-      }
-      if (this.r_r.ia) {
-        let key: boolean[];
-        if (this.r_r.levelAi == 1) {
-          key = this.iaBasic(this.ball, this.r_r);
-        } else {
-          key = this.iav1(this.ball, this.r_r);
-        }
-        this.r_r.toUp = key[0];
-        this.r_r.toDown = key[1];
-      }
+      const keyLeft = this.selectInput(this.r_l);
+      this.r_l.toUp = keyLeft[0];
+      this.r_l.toDown = keyLeft[1];
+      const keyRight = this.selectInput(this.r_r);
+      this.r_r.toUp = keyRight[0];
+      this.r_r.toDown = keyRight[1];
       this.moveRacket(this.r_r);
       this.moveRacket(this.r_l);
       this.moveBall();
       this.wallColision();
       this.racketColision();
       this.updateScore();
+    }
+  }
+
+  selectInput(racket: IRacket): boolean[] {
+    if (racket.mode === "local") {
+      return [racket.toUp, racket.toDown];
+    } else if (racket.mode === "ai") {
+      if (racket.levelAi == 1) {
+        return this.iaBasic(this.ball, racket);
+      } else {
+        return this.iav1(this.ball, racket);
+      }
+    } else if (racket.mode === "remote") {
+      //requete avec l'uid
+      return [false, false];
+    } else {
+      return [false, false];
     }
   }
 
@@ -207,12 +226,12 @@ export class PongComponent implements OnInit {
     if (this.ball.left < gameWidth / 2
         && this.ball.left <= gameMargin + this.r_l.width
         && this.ball.left + this.ball.diameter >= gameMargin
-        && this.ball.top + ballDiameter >= this.r_l.top
+        && this.ball.top + this.ball.diameter >= this.r_l.top
         && this.ball.top <= this.r_l.top + this.r_l.height) {
       this.rColision(this.r_l);
-    } else if (this.ball.left + ballDiameter >= this.r_r.left
+    } else if (this.ball.left + this.ball.diameter >= this.r_r.left
         && this.ball.left <= this.r_r.left + this.r_r.width
-        && this.ball.top + ballDiameter >= this.r_r.top
+        && this.ball.top + this.ball.diameter >= this.r_r.top
         && this.ball.top <= this.r_r.top + this.r_r.height) {
       this.rColision(this.r_r);
     }
@@ -256,14 +275,14 @@ export class PongComponent implements OnInit {
 
   nBall(): IBall {
     const newBall: IBall = {
-      backgroundColor: 'yellow',
-      top: (gameHeight / 2) - (ballDiameter / 2),
-      left: (gameWidth / 2) - (ballDiameter / 2),
+      backgroundColor: '#e5e83b',
+      top: (gameHeight / 2) - (this.ball.diameter / 2),
+      left: (gameWidth / 2) - (this.ball.diameter / 2),
       speed: [
         this.getRandomInT(2) ? -ballStartSpeed : ballStartSpeed,
         this.getRandomInT(2) ? -ballStartSpeed : ballStartSpeed
       ],
-      diameter: ballDiameter
+      diameter: this.ball.diameter
     };
     return newBall;
   }

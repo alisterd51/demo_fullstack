@@ -1,0 +1,19 @@
+<div>
+    <label for="playerName">name: </label>
+    <input id="playerName" [(ngModel)]="player.playerName" placeholder="playerName">
+    <label for="backgroundColor">color: </label>
+    <input type="color" name="color" id="color" [(ngModel)]="player.backgroundColor">
+    <label for="ai">mode: </label>
+    <select [(ngModel)]="player.mode" name="mode" id="mode">
+        <option value="local">local</option>
+        <option value="ai">ai</option>
+        <option value="remote">remote</option>
+    </select>
+    <label for="levelAi">levelAi: </label>
+    <select [(ngModel)]="player.levelAi" name="levelAi" id="levelAi">
+        <option value=1>easy</option>
+        <option value=2>hard</option>
+    </select>
+</div>
+
+<!-- <pre>{{player | json}}</pre> -->
