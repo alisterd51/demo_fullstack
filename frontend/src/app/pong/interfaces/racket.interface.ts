@@ -1,3 +1,5 @@
+import { NonNullableFormBuilder } from "@angular/forms";
+
 export interface IRacket {
     playerName: string;
     backgroundColor: string;
@@ -10,4 +12,5 @@ export interface IRacket {
     toUpKey: string;
     toDownKey: string;
     ia: boolean;
+    levelAi: number;
 }
