@@ -1,3 +1,20 @@
-<p>pong-game works!</p>
+<div>
+    <label for="backgroundColor">
+        color:
+        <input type="color" name="color" id="color" [(ngModel)]="game.backgroundColor">
+    </label>
+    <label for="racketSpeed">
+        racketSpeed:
+        <input type="number" name="racketSpeed" id="racketSpeed" [(ngModel)]="game.racketSpeed">
+    </label>
+    <label for="ballSpeed">
+        ballSpeed:
+        <input type="number" name="ballSpeed" id="ballSpeed" [(ngModel)]="game.ballSpeed">
+    </label>
+    <label for="scoreToWin">
+        scoreToWin:
+        <input type="number" name="scoreToWin" id="scoreToWin" [(ngModel)]="game.scoreToWin">
+    </label>
+</div>
 
-<pre>{{game | json}}</pre>
+<!-- <pre>{{game | json}}</pre> -->

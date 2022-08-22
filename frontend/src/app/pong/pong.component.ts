@@ -109,9 +109,9 @@ export class PongComponent implements OnInit {
   }
 
   win(): string | null {
-    if (this.left_score >= scoreToWin) {
+    if (this.left_score >= this.game.scoreToWin) {
       return this.r_l.playerName;
-    } else if (this.right_score >= scoreToWin) {
+    } else if (this.right_score >= this.game.scoreToWin) {
       return this.r_r.playerName;
     } else {
       return null;
@@ -146,11 +146,17 @@ export class PongComponent implements OnInit {
 
   moveRacket(racket: IRacket): void {
     if (racket.toDown && !racket.toUp
-      && racket.top + racketSpeed <= gameHeight - gameMargin - racket.height)  {
-      racket.top += racketSpeed;
+      && racket.top < gameHeight - gameMargin - racket.height)  {
+      racket.top += this.game.racketSpeed;
+      if (racket.top > gameHeight - gameMargin - racket.height) {
+        racket.top = gameHeight - gameMargin - racket.height;
+      }
     } else if (!racket.toDown && racket.toUp
-      && racket.top - racketSpeed >= gameMargin) {
-        racket.top -= racketSpeed;
+      && racket.top > gameMargin) {
+        racket.top -= this.game.racketSpeed;
+        if (racket.top < gameMargin) {
+          racket.top = gameMargin;
+        }
     }
   }
 
@@ -195,6 +201,57 @@ export class PongComponent implements OnInit {
     this.ball = this.nBall();
     this.r_l.top = gameMargin;
     this.r_r.top = gameMargin;
+  }
+
+  resetAll(): void {
+    this.game = {
+      racketSpeed: racketSpeed,
+      ballSpeed: ballSpeed,
+      backgroundColor: '#000000',
+      scoreToWin: scoreToWin
+    };
+    this.r_l = {
+      backgroundColor: defaultColorRacketPlayer1,
+      top: gameMargin,
+      left: gameMargin,
+      height: racketHeight,
+      width: racketWidth,
+      toUp: false,
+      toDown: false,
+      toUpKey: defaultKeyUpPlayer1,
+      toDownKey: defaultKeyDownPlayer1,
+      playerName: '',
+      levelAi: defaultLeverAi,
+      mode: 'local',
+      uid: 0
+    };
+    this.r_r = {
+      backgroundColor: defaultColorRacketPlayer2,
+      top: gameMargin,
+      left: gameWidth - gameMargin - racketWidth,
+      height: racketHeight,
+      width: racketWidth,
+      toUp: false,
+      toDown: false,
+      toUpKey: defaultKeyUpPlayer2,
+      toDownKey: defaultKeyDownPlayer2,
+      playerName: '',
+      levelAi: defaultLeverAi,
+      mode: 'local',
+      uid: 0
+    };
+    this.ball = {
+      backgroundColor: '#e5e83b',
+      top: (gameHeight / 2) - (ballDiameter / 2),
+      left: (gameWidth / 2) - (ballDiameter / 2),
+      // [0]: avance y
+      // [1]: avance x
+      speed: [
+        this.getRandomInT(2) ? -ballStartSpeed : ballStartSpeed,
+        this.getRandomInT(2) ? -ballStartSpeed : ballStartSpeed
+      ],
+      diameter: ballDiameter
+    };
   }
 
   updateScore(): void {
@@ -247,7 +304,7 @@ export class PongComponent implements OnInit {
       racket.top + (racket.height / 2)
     ];
     let angle = Math.atan((centerBall[1] - centerRacket[1]) / (centerBall[0] - centerRacket[0]));
-    let vitesse = ballSpeed;
+    let vitesse = this.game.ballSpeed;
     if (centerBall[0] < centerRacket[0]) {
       vitesse *= -1;
     }

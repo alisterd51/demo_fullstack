@@ -1,9 +1,12 @@
 <h3>{{game_title}}</h3>
 <div class="pong-game" [ngStyle]="{
+    'background-color': game.backgroundColor,
     'height': gameHeight + 'px',
     'width': gameWidth + 'px'
 }">
-    <div class="net"></div>
+    <div class="net" [ngStyle]="{
+        'background': 'repeating-linear-gradient(' + game.backgroundColor + ', ' + game.backgroundColor + ' 10px, white 10px, white 20px)'
+    }"></div>
     <div class="score" id="left-score">{{left_score}}</div>
     <div class="score" id="right-score">{{right_score}}</div>
     <div class="racket" id="left-racket" [ngStyle]="{
@@ -34,7 +37,8 @@
     <input type="checkbox" name="start" id="start" [(ngModel)]="start">
 </div>
 <div>
-    <button (click)="reset()">reset</button>
+    <button (click)="reset()">new game</button>
+    <button (click)="resetAll()">reset all params</button>
 </div>
 
 <app-pong-racket [player]="r_l"></app-pong-racket>

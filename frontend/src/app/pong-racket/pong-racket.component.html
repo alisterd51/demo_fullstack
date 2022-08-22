@@ -1,19 +1,45 @@
 <div>
-    <label for="playerName">name: </label>
-    <input id="playerName" [(ngModel)]="player.playerName" placeholder="playerName">
-    <label for="backgroundColor">color: </label>
-    <input type="color" name="color" id="color" [(ngModel)]="player.backgroundColor">
-    <label for="ai">mode: </label>
-    <select [(ngModel)]="player.mode" name="mode" id="mode">
-        <option value="local">local</option>
-        <option value="ai">ai</option>
-        <option value="remote">remote</option>
-    </select>
-    <label for="levelAi">levelAi: </label>
-    <select [(ngModel)]="player.levelAi" name="levelAi" id="levelAi">
-        <option value=1>easy</option>
-        <option value=2>hard</option>
-    </select>
+    <label for="playerName">
+        name:
+        <input id="playerName" [(ngModel)]="player.playerName" placeholder="playerName">
+    </label>
+    
+    <label for="backgroundColor">
+        color:
+        <input type="color" name="color" id="color" [(ngModel)]="player.backgroundColor">
+    </label>
+    <label for="mode">
+        mode:
+        <select [(ngModel)]="player.mode" name="mode" id="mode">
+            <option value="local">local</option>
+            <option value="ai">ai</option>
+            <option value="remote">remote</option>
+        </select>
+    </label>
+    <label *ngIf="player.mode === 'local'" for="inputKey">
+        inputKey:
+        <input id="toUpKey" [(ngModel)]="player.toUpKey" placeholder="toUpKey">
+        <input id="toDownKey" [(ngModel)]="player.toDownKey" placeholder="toDownKey">
+    </label>
+    <label *ngIf="player.mode === 'ai'" for="levelAi">
+        levelAi:
+        <select [(ngModel)]="player.levelAi" name="levelAi" id="levelAi">
+            <option value=1>easy</option>
+            <option value=2>hard</option>
+        </select>
+    </label>
+    <label *ngIf="player.mode === 'remote'" for="uid">
+        uid:
+        <input id="uid" [(ngModel)]="player.uid" placeholder="uid">
+    </label>
+    <label for="height">
+        height:
+        <input type="number" name="height" id="height" [(ngModel)]="player.height">
+    </label>
+    <label for="width">
+        width:
+        <input type="number" name="width" id="width" [(ngModel)]="player.width">
+    </label>
 </div>
 
 <!-- <pre>{{player | json}}</pre> -->
