@@ -83,6 +83,8 @@ export class PongComponent implements OnInit {
     diameter: ballDiameter
   };
   start: boolean = false;
+  canvas!: HTMLCanvasElement;
+  ctx!: CanvasRenderingContext2D;
 
   game_title = "FT PONG";
   gameHeight = gameHeight;
@@ -106,6 +108,8 @@ export class PongComponent implements OnInit {
     this.fdown$.pipe(filter(event => !event.repeat)).subscribe((event) => {
       this.toDown(event.key);
     });
+    this.canvas = <HTMLCanvasElement> document.getElementById('stage');
+    this.ctx = <CanvasRenderingContext2D> this.canvas.getContext('2d');
   }
 
   win(): string | null {
@@ -166,7 +170,6 @@ export class PongComponent implements OnInit {
       this.r_l.toUp = keyLeft[0];
       this.r_l.toDown = keyLeft[1];
       const keyRight = this.selectInput(this.r_r);
-      this.r_r.left = gameWidth - gameMargin - this.r_r.width;
       this.r_r.toUp = keyRight[0];
       this.r_r.toDown = keyRight[1];
       this.moveRacket(this.r_r);
@@ -176,6 +179,8 @@ export class PongComponent implements OnInit {
       this.racketColision();
       this.updateScore();
     }
+    this.r_r.left = gameWidth - gameMargin - this.r_r.width;
+    this.draw();
   }
 
   selectInput(racket: IRacket): boolean[] {
@@ -408,18 +413,66 @@ export class PongComponent implements OnInit {
   // iav2:
   // comme l'iav1 mais envoie la ball le plus loin possible de l'adversaire
 
-  drawRectable() {
-    const canvas = <HTMLCanvasElement> document.getElementById('stage');
-    if (canvas.getContext) {
-      const ctx = <CanvasRenderingContext2D> canvas.getContext('2d');
-
-      ctx.fillStyle = "#D74022";
-      ctx.fillRect(25, 25, 150, 150);
-
-      ctx.fillStyle = "rgba(0,0,0,0.5)";
-      ctx.clearRect(60, 60, 120, 120);
-      ctx.strokeRect(90, 90, 80, 80);
+  roundRect(x: number, y: number, width: number, height: number, radius: any = 5, fill = false, stroke = true) {
+    if (typeof radius === 'number') {
+      radius = {tl: radius, tr: radius, br: radius, bl: radius};
+    } else {
+      radius = {...{tl: 0, tr: 0, br: 0, bl: 0}, ...radius};
     }
+    this.ctx.beginPath();
+    this.ctx.moveTo(x + radius.tl, y);
+    this.ctx.lineTo(x + width - radius.tr, y);
+    this.ctx.quadraticCurveTo(x + width, y, x + width, y + radius.tr);
+    this.ctx.lineTo(x + width, y + height - radius.br);
+    this.ctx.quadraticCurveTo(x + width, y + height, x + width - radius.br, y + height);
+    this.ctx.lineTo(x + radius.bl, y + height);
+    this.ctx.quadraticCurveTo(x, y + height, x, y + height - radius.bl);
+    this.ctx.lineTo(x, y + radius.tl);
+    this.ctx.quadraticCurveTo(x, y, x + radius.tl, y);
+    this.ctx.closePath();
+    if (fill) {
+      this.ctx.fill();
+    }
+    if (stroke) {
+      this.ctx.stroke();
+    }
+  }
 
+  drawBall() {
+    this.ctx.beginPath();
+    this.ctx.fillStyle = this.ball.backgroundColor;
+    this.ctx.arc(this.ball.left + this.ball.diameter / 2, this.ball.top + this.ball.diameter / 2, this.ball.diameter / 2, 0, 2 * Math.PI);
+    this.ctx.fill();
+  }
+
+  draw() {
+    // clear
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+    // draw net
+    this.ctx.strokeStyle = "white";
+    this.ctx.beginPath();
+    this.ctx.setLineDash([5, 15]);
+    this.ctx.moveTo(gameWidth / 2, 0);
+    this.ctx.lineTo(gameWidth / 2, gameHeight);
+    this.ctx.stroke();
+
+    // draw left racket
+    this.ctx.fillStyle = this.r_l.backgroundColor;
+    this.roundRect(this.r_l.left, this.r_l.top, this.r_l.width, this.r_l.height, 10, true, false);
+
+    // draw left racket
+    this.ctx.fillStyle = this.r_r.backgroundColor;
+    this.roundRect(this.r_r.left, this.r_r.top, this.r_r.width, this.r_r.height, 10, true, false);
+
+    // draw ball
+    this.drawBall();
+
+    // draw score
+    this.ctx.font = "30px Arial";
+    this.ctx.fillStyle = "white";
+    this.ctx.textAlign = 'center';
+    this.ctx.fillText(String(this.left_score), gameWidth * 0.40, gameHeight * 0.05);
+    this.ctx.fillText(String(this.right_score), gameWidth * 0.60, gameHeight * 0.05);
   }
 }

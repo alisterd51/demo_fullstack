@@ -1,36 +1,6 @@
 <h3>{{game_title}}</h3>
-<div class="pong-game" [ngStyle]="{
-    'background-color': game.backgroundColor,
-    'height': gameHeight + 'px',
-    'width': gameWidth + 'px'
-}">
-    <div class="net" [ngStyle]="{
-        'background': 'repeating-linear-gradient(' + game.backgroundColor + ', ' + game.backgroundColor + ' 10px, white 10px, white 20px)'
-    }"></div>
-    <div class="score" id="left-score">{{left_score}}</div>
-    <div class="score" id="right-score">{{right_score}}</div>
-    <div class="racket" id="left-racket" [ngStyle]="{
-        'background-color': r_l.backgroundColor,
-        'top': r_l.top + 'px',
-        'left': r_l.left + 'px',
-        'height': r_l.height + 'px',
-        'width': r_l.width + 'px'
-    }"></div>
-    <div class="racket" id="right-racket" [ngStyle]="{
-        'background-color': r_r.backgroundColor,
-        'top': r_r.top + 'px',
-        'left': r_r.left + 'px',
-        'height': r_r.height + 'px',
-        'width': r_r.width + 'px'
-    }"></div>
-    <div class="ball" [ngStyle]="{
-        'background-color': ball.backgroundColor,
-        'height': ball.diameter + 'px',
-        'width': ball.diameter + 'px',
-        'top': ball.top + 'px',
-        'left': ball.left + 'px'
-    }"></div>
-</div>
+
+<canvas id="stage" width="{{gameWidth}}" height="{{gameHeight}}" [ngStyle]="{'width': '100%', 'background-color': this.game.backgroundColor}"></canvas>
 
 <div>
     <label for="start">start: </label>
@@ -46,6 +16,4 @@
 <app-pong-ball [ball]="ball"></app-pong-ball>
 <app-pong-game [game]="game"></app-pong-game>
 
-<button (click)="drawRectable()">Draw rectable</button>
-
-<!-- <canvas id="stage" width="200" height="200" [ngStyle]="{'width': '100%'}"></canvas> -->
+<button (click)="draw()">Draw rectable</button>
