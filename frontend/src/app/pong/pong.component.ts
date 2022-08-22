@@ -166,6 +166,7 @@ export class PongComponent implements OnInit {
       this.r_l.toUp = keyLeft[0];
       this.r_l.toDown = keyLeft[1];
       const keyRight = this.selectInput(this.r_r);
+      this.r_r.left = gameWidth - gameMargin - this.r_r.width;
       this.r_r.toUp = keyRight[0];
       this.r_r.toDown = keyRight[1];
       this.moveRacket(this.r_r);
@@ -399,5 +400,26 @@ export class PongComponent implements OnInit {
       const predictTop = this.ballTopPrediction(ball, racket);
       return this.KeyToCenter(predictTop, centerRacket, racket.height);
     }
+  }
+
+  // iav0:
+  // comme l'iaBasic mais envoie la ball le plus loin possible de l'adversaire
+
+  // iav2:
+  // comme l'iav1 mais envoie la ball le plus loin possible de l'adversaire
+
+  drawRectable() {
+    const canvas = <HTMLCanvasElement> document.getElementById('stage');
+    if (canvas.getContext) {
+      const ctx = <CanvasRenderingContext2D> canvas.getContext('2d');
+
+      ctx.fillStyle = "#D74022";
+      ctx.fillRect(25, 25, 150, 150);
+
+      ctx.fillStyle = "rgba(0,0,0,0.5)";
+      ctx.clearRect(60, 60, 120, 120);
+      ctx.strokeRect(90, 90, 80, 80);
+    }
+
   }
 }
