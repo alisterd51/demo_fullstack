@@ -1,4 +1,4 @@
-FROM node:18 As builder
+FROM node:18
 
 RUN npm install -g npm
 
@@ -17,15 +17,4 @@ COPY . .
 # Creates a "dist" folder with the production build
 RUN npm run build
 
-
-FROM nginx
-
-WORKDIR /usr/share/nginx/html
-
-RUN rm -rf ./*
-
-COPY --from=builder /usr/src/app/dist/todo-app .
-
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-
-ENTRYPOINT ["nginx", "-g", "daemon off;"]
+CMD npm run start

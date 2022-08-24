@@ -24,7 +24,7 @@ import { PongBallComponent } from './pong-ball/pong-ball.component';
     PongComponent,
     PongRacketComponent,
     PongGameComponent,
-    PongBallComponent
+    PongBallComponent,
   ],
   imports: [
     BrowserModule,

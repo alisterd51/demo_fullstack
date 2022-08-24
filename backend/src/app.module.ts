@@ -17,7 +17,7 @@ import { User } from './users/entities/user.entity';
     TodosModule,
     PlayersModule,
     ConfigModule.forRoot({
-      envFilePath: '.env'
+      envFilePath: '.env',
     }),
     TypeOrmModule.forRoot({
       type: 'postgres',
@@ -26,11 +26,11 @@ import { User } from './users/entities/user.entity';
       username: process.env.DB_USER,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
-      entities: [Player, Tech, User]
+      entities: [Player, Tech, User],
     }),
     TechsModule,
     AuthModule,
-    UsersModule
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [AppService],

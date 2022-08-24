@@ -9,7 +9,7 @@ const routes: Routes = [
   { path: '', component: HomeComponent },
   { path: 'add-techno', component: TechnoAddComponent},
   { path: 'all-technos', component: TechnoListComponent},
-  { path: 'pong', component: PongComponent }
+  { path: 'pong', component: PongComponent },
 ];
 
 @NgModule({

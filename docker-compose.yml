@@ -15,6 +15,7 @@ services:
       - backend_network
     volumes:
       - ./postgres/init.sql:/docker-entrypoint-initdb.d/create_tables.sql
+
   backend:
     container_name: backend
     build: 
@@ -26,9 +27,9 @@ services:
       DB_NAME: "${DB_NAME}"
       DB_PORT: "${DB_PORT}"
       DB_HOST: "${DB_HOST}"
-    command: npm run start:dev
-    ports:
-      - '3000:3000'
+    command: npm run start
+    expose:
+      - 3000
     networks:
       - backend_network
 
@@ -40,9 +41,29 @@ services:
     environment:
       API_PORT: "${API_PORT}"
       API_HOST: "${API_HOST}"
+    command: npm run start
+    expose:
+      - 4200
+    networks:
+      - frontend_network
+
+  nginx:
+    container_name: nginx
+    image: nginx
+    restart: always
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
     ports:
       - '8080:80'
+      - '8081:443'
+    networks:
+      - frontend_network
+      - backend_network
 
 networks:
   backend_network:
     driver: bridge
+  frontend_network:
+    driver: bridge
+
+# https://www.digitalocean.com/community/tutorials/nginx-reverse-proxy-node-angular
