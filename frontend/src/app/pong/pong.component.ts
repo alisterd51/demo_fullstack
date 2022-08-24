@@ -261,7 +261,7 @@ export class PongComponent implements OnInit {
   }
 
   updateScore(): void {
-    if (this.ball.left < 0 - ballDiameter) {
+    if (this.ball.left < 0 - this.ball.diameter) {
       this.right_score++;
       this.ball = this.nBall();
     } else if (this.ball.left > gameWidth) {
