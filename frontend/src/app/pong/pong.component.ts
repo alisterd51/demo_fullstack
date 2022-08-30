@@ -92,6 +92,8 @@ export class PongComponent implements OnInit {
   left_score = 0;
   right_score = 0;
 
+  randAi = Math.random();
+
   fup$ = fromEvent<KeyboardEvent>(window, 'keyup');
   fdown$ = fromEvent<KeyboardEvent>(window, 'keydown');
 
@@ -283,9 +285,11 @@ export class PongComponent implements OnInit {
     if (this.ball.top <= 0) {
       this.ball.top = 0;
       this.ball.speed[0] *= -1;
+      this.randAi = Math.random();
     } else if (this.ball.top + this.ball.diameter >= gameHeight) {
       this.ball.top = gameHeight - this.ball.diameter;
       this.ball.speed[0] *= -1;
+      this.randAi = Math.random();
     }
   }
 
@@ -338,7 +342,7 @@ export class PongComponent implements OnInit {
       }
     }
     // modif aleatoire de l'angle pour eviter une boucle infini
-    angle += (Math.random() - 1) / 10;
+    //angle += (Math.random() - 1) / 10;
     this.ball.speed = [Math.sin(angle) * vitesse, Math.cos(angle) * vitesse];
   }
 
@@ -365,9 +369,10 @@ export class PongComponent implements OnInit {
     centerRacket: number,
     heightRacket: number
   ): boolean[] {
-    if (centerBall > centerRacket + heightRacket / 4) {
+    const rand = (this.randAi - 1) * heightRacket / 3;
+    if (centerBall > centerRacket + rand + heightRacket / 4) {
       return [false, true];
-    } else if (centerBall < centerRacket - heightRacket / 4) {
+    } else if (centerBall < centerRacket + rand - heightRacket / 4) {
       return [true, false];
     } else {
       return [false, false];
