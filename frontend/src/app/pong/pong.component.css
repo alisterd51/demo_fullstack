@@ -1,0 +1,13 @@
+.game {
+  position: relative;
+  text-align: center;
+}
+
+.menu {
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  margin: 10%;
+  color: white;
+  width: 80%;
+}
