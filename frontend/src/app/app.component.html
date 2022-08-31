@@ -1,9 +1,21 @@
-<div style="text-align:center;">
+<div style="text-align: center">
   <h3>Bienvenue sur Angular</h3>
 
   <a routerLink="/">Accueil</a> |
   <a routerLink="/add-techno">Ajouter une techno</a> |
   <a routerLink="/all-technos">Toutes les technos</a> |
-  <a routerLink="/pong">Pong</a>
+  <a routerLink="/pong">Pong</a> |
+  <a routerLink="/chat">Chat</a>
 </div>
+
+<div>
+  <!-- test msg -->
+  <div *ngFor="let message of messages">
+    {{ message }}
+  </div>
+
+  <input [(ngModel)]="message" />
+  <button (click)="sendMessage()">Send</button>
+</div>
+
 <router-outlet></router-outlet>
