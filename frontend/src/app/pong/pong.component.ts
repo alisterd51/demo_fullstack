@@ -48,14 +48,21 @@ export class PongComponent implements OnInit {
     left: gameMargin,
     height: racketHeight,
     width: racketWidth,
-    toUp: false,
-    toDown: false,
     toUpKey: defaultKeyUpPlayer1,
     toDownKey: defaultKeyDownPlayer1,
     playerName: 'left',
     levelAi: defaultLeverAi,
     mode: 'local',
-    uid: 0,
+    move: {
+      uid: 0,
+      toUp: false,
+      toDown: false,
+    },
+    moveRemote: {
+      uid: 0,
+      toUp: false,
+      toDown: false,
+    },
   };
   r_r: IRacket = {
     backgroundColor: defaultColorRacketPlayer2,
@@ -63,14 +70,21 @@ export class PongComponent implements OnInit {
     left: gameWidth - gameMargin - racketWidth,
     height: racketHeight,
     width: racketWidth,
-    toUp: false,
-    toDown: false,
     toUpKey: defaultKeyUpPlayer2,
     toDownKey: defaultKeyDownPlayer2,
     playerName: 'right',
     levelAi: defaultLeverAi,
     mode: 'local',
-    uid: 0,
+    move: {
+      uid: 1,
+      toUp: false,
+      toDown: false,
+    },
+    moveRemote: {
+      uid: 1,
+      toUp: false,
+      toDown: false,
+    },
   };
   ball: IBall = {
     backgroundColor: '#e5e83b',
@@ -99,16 +113,16 @@ export class PongComponent implements OnInit {
   fup$ = fromEvent<KeyboardEvent>(window, 'keyup');
   fdown$ = fromEvent<KeyboardEvent>(window, 'keydown');
 
-  move: IMove = {
-    uid: 0,
-    move: [false, false]
-  };
-
   constructor(private socketService: SocketService) {}
 
   ngOnInit(): void {
     this.socketService.getMove().subscribe((move: any) => {
       console.log(move);
+      if (move.uid === this.r_l.move.uid) {
+        this.r_l.moveRemote = move;
+      } else if (move.uid === this.r_r.move.uid) {
+        this.r_r.moveRemote = move;
+      }
     });
     interval(interval_tick).subscribe(() => {
       this.tick();
@@ -139,13 +153,13 @@ export class PongComponent implements OnInit {
 
   toUp(key: string) {
     if (key === this.r_r.toUpKey) {
-      this.r_r.toUp = false;
+      this.r_r.move.toUp = false;
     } else if (key === this.r_r.toDownKey) {
-      this.r_r.toDown = false;
+      this.r_r.move.toDown = false;
     } else if (key === this.r_l.toUpKey) {
-      this.r_l.toUp = false;
+      this.r_l.move.toUp = false;
     } else if (key === this.r_l.toDownKey) {
-      this.r_l.toDown = false;
+      this.r_l.move.toDown = false;
     }
   }
 
@@ -153,27 +167,27 @@ export class PongComponent implements OnInit {
     if (key === keyStart) {
       this.start = !this.start;
     } else if (key === this.r_r.toUpKey) {
-      this.r_r.toUp = true;
+      this.r_r.move.toUp = true;
     } else if (key === this.r_r.toDownKey) {
-      this.r_r.toDown = true;
+      this.r_r.move.toDown = true;
     } else if (key === this.r_l.toUpKey) {
-      this.r_l.toUp = true;
+      this.r_l.move.toUp = true;
     } else if (key === this.r_l.toDownKey) {
-      this.r_l.toDown = true;
+      this.r_l.move.toDown = true;
     }
   }
 
   moveRacket(racket: IRacket): void {
     if (
-      racket.toDown &&
-      !racket.toUp &&
+      racket.move.toDown &&
+      !racket.move.toUp &&
       racket.top < gameHeight - gameMargin - racket.height
     ) {
       racket.top += this.game.racketSpeed;
       if (racket.top > gameHeight - gameMargin - racket.height) {
         racket.top = gameHeight - gameMargin - racket.height;
       }
-    } else if (!racket.toDown && racket.toUp && racket.top > gameMargin) {
+    } else if (!racket.move.toDown && racket.move.toUp && racket.top > gameMargin) {
       racket.top -= this.game.racketSpeed;
       if (racket.top < gameMargin) {
         racket.top = gameMargin;
@@ -185,21 +199,13 @@ export class PongComponent implements OnInit {
     this.r_r.left = gameWidth - gameMargin - this.r_r.width;
     if (this.start && this.win() == null) {
       const keyLeft = this.selectInput(this.r_l);
-      this.move = {
-        uid: 0,
-        move: keyLeft
-      };
-      this.sendMove(this.move);
-      this.r_l.toUp = keyLeft[0];
-      this.r_l.toDown = keyLeft[1];
+      this.r_l.move.toUp = keyLeft[0];
+      this.r_l.move.toDown = keyLeft[1];
+      this.sendMove(this.r_l.move);
       const keyRight = this.selectInput(this.r_r);
-      this.move = {
-        uid: 1,
-        move: keyRight
-      };
-      this.sendMove(this.move);
-      this.r_r.toUp = keyRight[0];
-      this.r_r.toDown = keyRight[1];
+      this.r_r.move.toUp = keyRight[0];
+      this.r_r.move.toDown = keyRight[1];
+      this.sendMove(this.r_r.move);
       this.moveRacket(this.r_r);
       this.moveRacket(this.r_l);
       this.moveBall();
@@ -217,9 +223,11 @@ export class PongComponent implements OnInit {
   //  un uid.
   //  une tableau booleen
 
+  // il faut que le serveur mette d'accord les distant sur la pose et l'etat actuel du jeu
+
   selectInput(racket: IRacket): boolean[] {
     if (racket.mode === 'local') {
-      return [racket.toUp, racket.toDown];
+      return [racket.move.toUp, racket.move.toDown];
     } else if (racket.mode === 'ai') {
       if (racket.levelAi == 1) {
         return this.iaBasic(this.ball, racket);
@@ -228,7 +236,7 @@ export class PongComponent implements OnInit {
       }
     } else if (racket.mode === 'remote') {
       //requete avec l'uid
-      return [false, false];
+      return [racket.moveRemote.toUp, racket.moveRemote.toDown];
     } else {
       return [false, false];
     }
@@ -256,14 +264,21 @@ export class PongComponent implements OnInit {
       left: gameMargin,
       height: racketHeight,
       width: racketWidth,
-      toUp: false,
-      toDown: false,
       toUpKey: defaultKeyUpPlayer1,
       toDownKey: defaultKeyDownPlayer1,
       playerName: '',
       levelAi: defaultLeverAi,
       mode: 'local',
-      uid: 0,
+      move: {
+        uid: 0,
+        toUp: false,
+        toDown: false,
+      },
+      moveRemote: {
+        uid: 0,
+        toUp: false,
+        toDown: false,
+      },
     };
     this.r_r = {
       backgroundColor: defaultColorRacketPlayer2,
@@ -271,14 +286,21 @@ export class PongComponent implements OnInit {
       left: gameWidth - gameMargin - racketWidth,
       height: racketHeight,
       width: racketWidth,
-      toUp: false,
-      toDown: false,
       toUpKey: defaultKeyUpPlayer2,
       toDownKey: defaultKeyDownPlayer2,
       playerName: '',
       levelAi: defaultLeverAi,
       mode: 'local',
-      uid: 0,
+      move: {
+        uid: 1,
+        toUp: false,
+        toDown: false,
+      },
+      moveRemote: {
+        uid: 1,
+        toUp: false,
+        toDown: false,
+      },
     };
     this.ball = {
       backgroundColor: '#e5e83b',

@@ -1,3 +1,5 @@
+import { IMove } from "./move.interface";
+
 export interface IRacket {
     playerName: string;
     backgroundColor: string;
@@ -5,11 +7,10 @@ export interface IRacket {
     left: number;
     height: number;
     width: number;
-    toUp: boolean;
-    toDown: boolean;
-    toUpKey: string;//a ajouter au param
-    toDownKey: string;//a ajouter au param
+    toUpKey: string;
+    toDownKey: string;
     levelAi: number;
     mode: string;
-    uid: number;//a ajouter au param
+    move: IMove;
+    moveRemote: IMove; //a supprimer
 }
