@@ -8,14 +8,4 @@
   <a routerLink="/chat">Chat</a>
 </div>
 
-<div>
-  <!-- test msg -->
-  <div *ngFor="let message of messages">
-    {{ message }}
-  </div>
-
-  <input [(ngModel)]="message" />
-  <button (click)="sendMessage()">Send</button>
-</div>
-
 <router-outlet></router-outlet>

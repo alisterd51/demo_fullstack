@@ -26,6 +26,11 @@ export class AppGateway
     this.server.emit('msgToClient', payload);
   }
 
+  @SubscribeMessage('moveToServer')
+  handleMove(client: any, payload: any): void {
+    this.server.emit('moveToClient', payload);
+  }
+
   afterInit(server: Server) {
     this.logger.log('Init');
   }

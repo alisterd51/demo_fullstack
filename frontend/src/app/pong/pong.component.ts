@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { filter, fromEvent, interval } from 'rxjs';
+import { SocketService } from '../services/socket.service';
 import { IBall } from './interfaces/ball.interface';
 import { IGame } from './interfaces/game.interface';
+import { IMove } from './interfaces/move.interface';
 import { IRacket } from './interfaces/racket.interface';
 
 const interval_tick = 8; //16
@@ -97,9 +99,17 @@ export class PongComponent implements OnInit {
   fup$ = fromEvent<KeyboardEvent>(window, 'keyup');
   fdown$ = fromEvent<KeyboardEvent>(window, 'keydown');
 
-  constructor() {}
+  move: IMove = {
+    uid: 0,
+    move: [false, false]
+  };
+
+  constructor(private socketService: SocketService) {}
 
   ngOnInit(): void {
+    this.socketService.getMove().subscribe((move: any) => {
+      console.log(move);
+    });
     interval(interval_tick).subscribe(() => {
       this.tick();
     });
@@ -111,6 +121,10 @@ export class PongComponent implements OnInit {
     });
     this.canvas = <HTMLCanvasElement>document.getElementById('stage');
     this.ctx = <CanvasRenderingContext2D>this.canvas.getContext('2d');
+  }
+
+  sendMove(move: IMove) {
+    this.socketService.sendMove(move);
   }
 
   win(): string | null {
@@ -171,9 +185,19 @@ export class PongComponent implements OnInit {
     this.r_r.left = gameWidth - gameMargin - this.r_r.width;
     if (this.start && this.win() == null) {
       const keyLeft = this.selectInput(this.r_l);
+      this.move = {
+        uid: 0,
+        move: keyLeft
+      };
+      this.sendMove(this.move);
       this.r_l.toUp = keyLeft[0];
       this.r_l.toDown = keyLeft[1];
       const keyRight = this.selectInput(this.r_r);
+      this.move = {
+        uid: 1,
+        move: keyRight
+      };
+      this.sendMove(this.move);
       this.r_r.toUp = keyRight[0];
       this.r_r.toDown = keyRight[1];
       this.moveRacket(this.r_r);
@@ -188,6 +212,10 @@ export class PongComponent implements OnInit {
       this.darken();
     }
   }
+
+  // une input a:
+  //  un uid.
+  //  une tableau booleen
 
   selectInput(racket: IRacket): boolean[] {
     if (racket.mode === 'local') {

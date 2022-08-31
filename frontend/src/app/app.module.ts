@@ -38,7 +38,7 @@ import { SocketService } from './services/socket.service';
     FormsModule,
     ReactiveFormsModule,
   ],
-  providers: [SocketService],
+  providers: [],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
