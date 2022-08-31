@@ -11,6 +11,7 @@ import { Tech } from './techs/entities/tech.entity';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { User } from './users/entities/user.entity';
+import { AppGateway } from './app.gateway';
 
 @Module({
   imports: [
@@ -33,6 +34,6 @@ import { User } from './users/entities/user.entity';
     UsersModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, AppGateway],
 })
 export class AppModule {}
