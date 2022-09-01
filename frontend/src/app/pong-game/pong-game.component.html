@@ -1,20 +1,51 @@
 <div>
-    <label for="backgroundColor">
-        color:
-        <input type="color" name="color" id="color" [(ngModel)]="game.backgroundColor">
-    </label>
-    <label for="racketSpeed">
-        racketSpeed:
-        <input type="number" name="racketSpeed" id="racketSpeed" [(ngModel)]="game.racketSpeed">
-    </label>
-    <label for="ballSpeed">
-        ballSpeed:
-        <input type="number" name="ballSpeed" id="ballSpeed" [(ngModel)]="game.ballSpeed">
-    </label>
-    <label for="scoreToWin">
-        scoreToWin:
-        <input type="number" name="scoreToWin" id="scoreToWin" [(ngModel)]="game.scoreToWin">
-    </label>
+  <label for="mode">
+    mode:
+    <select [(ngModel)]="game.mode" name="mode" id="mode">
+      <option value="local">local</option>
+      <option value="server">server</option>
+    </select>
+  </label>
+  <label *ngIf="game.mode === 'server'" for="id">
+    id:
+    <input id="uid" [(ngModel)]="game.uid" placeholder="id" />
+  </label>
+  <label for="backgroundColor">
+    color:
+    <input
+      type="color"
+      name="color"
+      id="color"
+      [(ngModel)]="game.backgroundColor"
+    />
+  </label>
+  <label for="racketSpeed">
+    racketSpeed:
+    <input
+      type="number"
+      name="racketSpeed"
+      id="racketSpeed"
+      [(ngModel)]="game.racketSpeed"
+    />
+  </label>
+  <label for="ballSpeed">
+    ballSpeed:
+    <input
+      type="number"
+      name="ballSpeed"
+      id="ballSpeed"
+      [(ngModel)]="game.ballSpeed"
+    />
+  </label>
+  <label for="scoreToWin">
+    scoreToWin:
+    <input
+      type="number"
+      name="scoreToWin"
+      id="scoreToWin"
+      [(ngModel)]="game.scoreToWin"
+    />
+  </label>
 </div>
 
 <!-- <pre>{{game | json}}</pre> -->

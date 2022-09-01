@@ -30,6 +30,11 @@ const defaultLeverAi = 2;
 //un joueur/ia distant  represente par un uid
 //une ia local          represente par un niveau
 
+//il faut envoyer une seul update par modif d'input
+//ajouter l'envoi et la recetion de la pause
+//ajouter la recetion de la position le vecteur vitesse de la balle
+//ajouter la recetion de toutes les variable d'une partie dans le cas ou la partie est sur le serveur
+
 @Component({
   selector: 'app-pong',
   templateUrl: './pong.component.html',
@@ -41,6 +46,8 @@ export class PongComponent implements OnInit {
     ballSpeed: ballSpeed,
     backgroundColor: '#000000',
     scoreToWin: scoreToWin,
+    mode: 'local',
+    uid: 0,
   };
   r_l: IRacket = {
     backgroundColor: defaultColorRacketPlayer1,
@@ -58,11 +65,16 @@ export class PongComponent implements OnInit {
       toUp: false,
       toDown: false,
     },
-    moveRemote: {
+    prevMove: {
       uid: 0,
       toUp: false,
       toDown: false,
     },
+    moveRemote: {
+      uid: 0,
+      toUp: false,
+      toDown: false,
+    }
   };
   r_r: IRacket = {
     backgroundColor: defaultColorRacketPlayer2,
@@ -76,6 +88,11 @@ export class PongComponent implements OnInit {
     levelAi: defaultLeverAi,
     mode: 'local',
     move: {
+      uid: 1,
+      toUp: false,
+      toDown: false,
+    },
+    prevMove: {
       uid: 1,
       toUp: false,
       toDown: false,
@@ -117,7 +134,6 @@ export class PongComponent implements OnInit {
 
   ngOnInit(): void {
     this.socketService.getMove().subscribe((move: any) => {
-      console.log(move);
       if (move.uid === this.r_l.move.uid) {
         this.r_l.moveRemote = move;
       } else if (move.uid === this.r_r.move.uid) {
@@ -137,8 +153,13 @@ export class PongComponent implements OnInit {
     this.ctx = <CanvasRenderingContext2D>this.canvas.getContext('2d');
   }
 
-  sendMove(move: IMove) {
-    this.socketService.sendMove(move);
+  sendMove(move: IMove, prevMove: IMove) {
+    if (move.toUp !== prevMove.toUp || move.toDown !== prevMove.toDown) {
+      console.log("diff", move, prevMove);
+      this.socketService.sendMove(move);
+    } else {
+      console.log("no diff");
+    }
   }
 
   win(): string | null {
@@ -187,7 +208,11 @@ export class PongComponent implements OnInit {
       if (racket.top > gameHeight - gameMargin - racket.height) {
         racket.top = gameHeight - gameMargin - racket.height;
       }
-    } else if (!racket.move.toDown && racket.move.toUp && racket.top > gameMargin) {
+    } else if (
+      !racket.move.toDown &&
+      racket.move.toUp &&
+      racket.top > gameMargin
+    ) {
       racket.top -= this.game.racketSpeed;
       if (racket.top < gameMargin) {
         racket.top = gameMargin;
@@ -201,11 +226,13 @@ export class PongComponent implements OnInit {
       const keyLeft = this.selectInput(this.r_l);
       this.r_l.move.toUp = keyLeft[0];
       this.r_l.move.toDown = keyLeft[1];
-      this.sendMove(this.r_l.move);
+      this.sendMove(this.r_l.move, this.r_l.prevMove);
+      //this.r_l.prevMove = this.r_l.move;
       const keyRight = this.selectInput(this.r_r);
       this.r_r.move.toUp = keyRight[0];
       this.r_r.move.toDown = keyRight[1];
-      this.sendMove(this.r_r.move);
+      this.sendMove(this.r_r.move, this.r_r.prevMove);
+      //this.r_r.prevMove = this.r_r.move; // a mettre dans sendMove
       this.moveRacket(this.r_r);
       this.moveRacket(this.r_l);
       this.moveBall();
@@ -257,6 +284,8 @@ export class PongComponent implements OnInit {
       ballSpeed: ballSpeed,
       backgroundColor: '#000000',
       scoreToWin: scoreToWin,
+      mode: 'local',
+      uid: 0,
     };
     this.r_l = {
       backgroundColor: defaultColorRacketPlayer1,
@@ -270,6 +299,11 @@ export class PongComponent implements OnInit {
       levelAi: defaultLeverAi,
       mode: 'local',
       move: {
+        uid: 0,
+        toUp: false,
+        toDown: false,
+      },
+      prevMove: {
         uid: 0,
         toUp: false,
         toDown: false,
@@ -292,6 +326,11 @@ export class PongComponent implements OnInit {
       levelAi: defaultLeverAi,
       mode: 'local',
       move: {
+        uid: 1,
+        toUp: false,
+        toDown: false,
+      },
+      prevMove: {
         uid: 1,
         toUp: false,
         toDown: false,
@@ -419,7 +458,7 @@ export class PongComponent implements OnInit {
     centerRacket: number,
     heightRacket: number
   ): boolean[] {
-    const rand = (this.randAi - 1) * heightRacket / 3;
+    const rand = ((this.randAi - 1) * heightRacket) / 3;
     if (centerBall > centerRacket + rand + heightRacket / 4) {
       return [false, true];
     } else if (centerBall < centerRacket + rand - heightRacket / 4) {

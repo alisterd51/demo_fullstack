@@ -12,5 +12,6 @@ export interface IRacket {
     levelAi: number;
     mode: string;
     move: IMove;
+    prevMove: IMove;
     moveRemote: IMove; //a supprimer
 }

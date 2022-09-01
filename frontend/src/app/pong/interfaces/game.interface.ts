@@ -3,4 +3,6 @@ export interface IGame {
     ballSpeed: number;
     backgroundColor: string;
     scoreToWin: number;
+    mode: string;
+    uid: number;
 }

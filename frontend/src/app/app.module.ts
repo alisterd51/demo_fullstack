@@ -13,10 +13,7 @@ import { PongComponent } from './pong/pong.component';
 import { PongRacketComponent } from './pong-racket/pong-racket.component';
 import { PongGameComponent } from './pong-game/pong-game.component';
 import { PongBallComponent } from './pong-ball/pong-ball.component';
-import { SocketIoConfig, SocketIoModule } from 'ngx-socket-io';
-import { environment } from 'src/environments/environment';
 import { ChatComponent } from './chat/chat.component';
-import { SocketService } from './services/socket.service';
 
 @NgModule({
   declarations: [
