@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { io } from 'socket.io-client';
+import { IGameStates } from '../pong/interfaces/game-states.interface';
 import { IMove } from '../pong/interfaces/move.interface';
 
 @Injectable({
@@ -33,6 +34,18 @@ export class SocketService {
   getMove(): Observable<IMove> {
     return new Observable<IMove>((observer) => {
       this.socket.on('moveToClient', (message) => {
+        observer.next(message);
+      });
+    });
+  }
+
+  sendGameStates(gameStates: IGameStates): void {
+    this.socket.emit('gameStatesToServer', gameStates);
+  }
+
+  getGameStates(): Observable<IGameStates> {
+    return new Observable<IGameStates>((observer) => {
+      this.socket.on('gameStatesToClient', (message) => {
         observer.next(message);
       });
     });

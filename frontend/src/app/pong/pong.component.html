@@ -23,7 +23,7 @@
     <app-pong-ball [ball]="ball"></app-pong-ball>
     <app-pong-game [game]="game"></app-pong-game>
   </div>
-  <div class="menu" *ngIf="win() != null">
+  <div class="menu" *ngIf="start && win() != null">
     <h2>{{ "Player " + win() + " win" }}</h2>
     <button (click)="reset()">new game</button>
   </div>

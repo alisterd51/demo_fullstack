@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { filter, fromEvent, interval } from 'rxjs';
 import { SocketService } from '../services/socket.service';
 import { IBall } from './interfaces/ball.interface';
+import { IGameStates } from './interfaces/game-states.interface';
 import { IGame } from './interfaces/game.interface';
 import { IMove } from './interfaces/move.interface';
 import { IRacket } from './interfaces/racket.interface';
@@ -34,6 +35,8 @@ const defaultLeverAi = 2;
 //ajouter l'envoi et la recetion de la pause
 //ajouter la recetion de la position le vecteur vitesse de la balle
 //ajouter la recetion de toutes les variable d'une partie dans le cas ou la partie est sur le serveur
+
+//en mode serveur, je recois toute les info de position du serveur via socket.io
 
 @Component({
   selector: 'app-pong',
@@ -74,7 +77,7 @@ export class PongComponent implements OnInit {
       uid: 0,
       toUp: false,
       toDown: false,
-    }
+    },
   };
   r_r: IRacket = {
     backgroundColor: defaultColorRacketPlayer2,
@@ -127,6 +130,24 @@ export class PongComponent implements OnInit {
 
   randAi = Math.random();
 
+  gameStatesServer: IGameStates = {
+    gameId: 0,
+    racketLeft: {
+      top: 0,
+      left: 0,
+    },
+    racketRight: {
+      top: 0,
+      left: 0,
+    },
+    ball: {
+      top: 0,
+      left: 0,
+    },
+    scoreLeft: 0,
+    scoreRight: 0,
+  };
+
   fup$ = fromEvent<KeyboardEvent>(window, 'keyup');
   fdown$ = fromEvent<KeyboardEvent>(window, 'keydown');
 
@@ -138,6 +159,14 @@ export class PongComponent implements OnInit {
         this.r_l.moveRemote = move;
       } else if (move.uid === this.r_r.move.uid) {
         this.r_r.moveRemote = move;
+      }
+    });
+    this.socketService.getGameStates().subscribe((states: any) => {
+      if (this.game.uid === states.gameId) {
+        console.log('ok', states);
+        this.gameStatesServer = states;
+      } else {
+        console.log('test', states);
       }
     });
     interval(interval_tick).subscribe(() => {
@@ -155,11 +184,12 @@ export class PongComponent implements OnInit {
 
   sendMove(move: IMove, prevMove: IMove) {
     if (move.toUp !== prevMove.toUp || move.toDown !== prevMove.toDown) {
-      console.log("diff", move, prevMove);
       this.socketService.sendMove(move);
-    } else {
-      console.log("no diff");
     }
+  }
+
+  sendGameStates(gameStates: IGameStates) {
+    this.socketService.sendGameStates(gameStates);
   }
 
   win(): string | null {
@@ -221,24 +251,60 @@ export class PongComponent implements OnInit {
   }
 
   tick(): void {
-    this.r_r.left = gameWidth - gameMargin - this.r_r.width;
-    if (this.start && this.win() == null) {
-      const keyLeft = this.selectInput(this.r_l);
-      this.r_l.move.toUp = keyLeft[0];
-      this.r_l.move.toDown = keyLeft[1];
-      this.sendMove(this.r_l.move, this.r_l.prevMove);
-      //this.r_l.prevMove = this.r_l.move;
-      const keyRight = this.selectInput(this.r_r);
-      this.r_r.move.toUp = keyRight[0];
-      this.r_r.move.toDown = keyRight[1];
-      this.sendMove(this.r_r.move, this.r_r.prevMove);
-      //this.r_r.prevMove = this.r_r.move; // a mettre dans sendMove
-      this.moveRacket(this.r_r);
-      this.moveRacket(this.r_l);
-      this.moveBall();
-      this.wallColision();
-      this.racketColision();
-      this.updateScore();
+    if (this.game.mode === 'local') {
+      this.r_r.left = gameWidth - gameMargin - this.r_r.width;
+      if (this.start && this.win() == null) {
+        const keyLeft = this.selectInput(this.r_l);
+        this.r_l.move.toUp = keyLeft[0];
+        this.r_l.move.toDown = keyLeft[1];
+        this.sendMove(this.r_l.move, this.r_l.prevMove);
+        const keyRight = this.selectInput(this.r_r);
+        this.r_r.move.toUp = keyRight[0];
+        this.r_r.move.toDown = keyRight[1];
+        this.sendMove(this.r_r.move, this.r_r.prevMove);
+        this.r_l.prevMove.toUp = this.r_l.move.toUp;
+        this.r_l.prevMove.toDown = this.r_l.move.toDown;
+        this.r_r.prevMove.toUp = this.r_r.move.toUp;
+        this.r_r.prevMove.toDown = this.r_r.move.toDown;
+        this.moveRacket(this.r_r);
+        this.moveRacket(this.r_l);
+        this.moveBall();
+        this.wallColision();
+        this.racketColision();
+        this.updateScore();
+        const gameStates: IGameStates = {
+          gameId: this.game.uid,
+          racketLeft: {
+            top: this.r_l.top,
+            left: this.r_l.left
+          },
+          racketRight: {
+            top: this.r_r.top,
+            left: this.r_r.left
+          },
+          ball: {
+            top: this.ball.top,
+            left: this.ball.left
+          },
+          scoreLeft: this.left_score,
+          scoreRight: this.right_score
+        }
+        this.sendGameStates(gameStates);
+      }
+    } else if (this.game.mode === 'server') {
+      this.ball.left = this.gameStatesServer.ball.left;
+      this.ball.top = this.gameStatesServer.ball.top;
+      this.r_l.left = this.gameStatesServer.racketLeft.left;
+      this.r_l.top = this.gameStatesServer.racketLeft.top;
+      this.r_r.left = this.gameStatesServer.racketRight.left;
+      this.r_r.top = this.gameStatesServer.racketRight.top;
+      this.left_score = this.gameStatesServer.scoreLeft;
+      this.right_score = this.gameStatesServer.scoreRight;
+      // TODO: manque la vitesse de la balle
+      // TODO: ne faire la maj qu'au moment ou on recois l'info,
+      //       si le serveur n'a rien envoyer on calcul la suite
+      //       du jeu avec le moteur front
+      // TODO: refacto
     }
     this.draw();
     if (!this.start || this.win() != null) {

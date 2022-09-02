@@ -31,6 +31,11 @@ export class AppGateway
     this.server.emit('moveToClient', payload);
   }
 
+  @SubscribeMessage('gameStatesToServer')
+  handleGameStates(client: any, payload: any): void {
+    this.server.emit('gameStatesToClient', payload);
+  }
+
   afterInit(server: Server) {
     this.logger.log('Init');
   }
