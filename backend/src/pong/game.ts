@@ -130,9 +130,15 @@ export class Game {
       posBall,
       posNextBall,
     );
+    const collision = this.nearestCollision(posBall, [
+      wallColision,
+      goalColision,
+      racketColision,
+    ]);
 
-    if (0) {
-      //doit trouver l'inter la plus proche et apply la nouvelle direction
+    if (collision == wallColision) {
+    } else if (collision == goalColision) {
+    } else if (collision == racketColision) {
     } else {
       this.game.states.ball.left += this.game.states.ballDirection[0];
       this.game.states.ball.top += this.game.states.ballDirection[1];
@@ -334,61 +340,37 @@ export class Game {
       recRight,
       recDown,
     );
-    //on veut trouver la collision la plus proche de posBall
-    let leftDistance: number = Number.MAX_VALUE;
-    let rightDistance: number = Number.MAX_VALUE;
-    let topDistance: number = Number.MAX_VALUE;
-    let downDistance: number = Number.MAX_VALUE;
-    if (leftColistion.type === 'intersecting') {
-      leftDistance = this.distance(
-        posBall[0],
-        leftColistion.point.x,
-        posBall[1],
-        leftColistion.point.y,
-      );
-    }
-    if (rightColistion.type === 'intersecting') {
-      rightDistance = this.distance(
-        posBall[0],
-        rightColistion.point.x,
-        posBall[1],
-        rightColistion.point.y,
-      );
-    }
-    if (topColistion.type === 'intersecting') {
-      topDistance = this.distance(
-        posBall[0],
-        topColistion.point.x,
-        posBall[1],
-        topColistion.point.y,
-      );
-    }
-    if (downColistion.type === 'intersecting') {
-      downDistance = this.distance(
-        posBall[0],
-        downColistion.point.x,
-        posBall[1],
-        downColistion.point.y,
-      );
-    }
-    const min = Math.min(
-      leftDistance,
-      rightDistance,
-      topDistance,
-      downDistance,
-    );
-    if (min !== Number.MAX_VALUE) {
-      if (min === leftDistance) {
-        return leftColistion;
-      } else if (min === rightDistance) {
-        return rightColistion;
-      } else if (min === topDistance) {
-        return topColistion;
-      } else if (min === downDistance) {
-        return downColistion;
+    return this.nearestCollision(posBall, [
+      leftColistion,
+      rightColistion,
+      topColistion,
+      downColistion,
+    ]);
+  }
+
+  // colision la plus proche
+  private nearestCollision(
+    posBall: number[],
+    collisions: IntersectionCheckResult[],
+  ): IntersectionCheckResult {
+    let collisionMin: IntersectionCheckResult = { type: 'none' };
+    let distanceMin = Number.MAX_VALUE;
+    for (let index = 0; index < collisions.length; index++) {
+      const collision = collisions[index];
+      if (collision.type === 'intersecting') {
+        const distance = this.distance(
+          posBall[0],
+          collision.point.x,
+          posBall[1],
+          collision.point.y,
+        );
+        if (distance < distanceMin) {
+          distanceMin = distance;
+          collisionMin = collision;
+        }
       }
     }
-    return { type: 'none' };
+    return collisionMin;
   }
 
   private racketColision(
