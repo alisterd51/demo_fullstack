@@ -126,13 +126,13 @@ export class Game {
       goalLeft,
       goalRight,
     );
-    let racketColision: IntersectionCheckResult;
+    const racketColision: IntersectionCheckResult = this.racketColision(
+      posBall,
+      posNextBall,
+    );
 
-    // dans la moitier gauche ou droite
-    //  colision racket gauche
-    //  colision racket droite
-
-    if (1) {
+    if (0) {
+      //doit trouver l'inter la plus proche et apply la nouvelle direction
     } else {
       this.game.states.ball.left += this.game.states.ballDirection[0];
       this.game.states.ball.top += this.game.states.ballDirection[1];
@@ -149,8 +149,9 @@ export class Game {
     wallDown: number[],
     wallUp: number[],
   ): IntersectionCheckResult {
+    let colision: IntersectionCheckResult;
     if (posBall[1] < posNextBall[1]) {
-      return checkIntersection(
+      colision = checkIntersection(
         posBall[0] + this.game.ball.diammeter,
         posBall[1] + this.game.ball.diammeter,
         posNextBall[0] + this.game.ball.diammeter,
@@ -161,7 +162,7 @@ export class Game {
         wallDown[1],
       );
     } else {
-      return checkIntersection(
+      colision = checkIntersection(
         posBall[0],
         posBall[1],
         posNextBall[0],
@@ -172,6 +173,21 @@ export class Game {
         wallUp[1],
       );
     }
+    if (
+      colision.type === 'intersecting' &&
+      colinearPointWithinSegment(
+        colision.point.x,
+        colision.point.y,
+        posBall[0],
+        posBall[1],
+        posNextBall[0],
+        posNextBall[1],
+      )
+    ) {
+      return colision;
+    } else {
+      return { type: 'none' };
+    }
   }
 
   private goalColision(
@@ -180,8 +196,9 @@ export class Game {
     goalLeft: number[],
     goalRight: number[],
   ): IntersectionCheckResult {
+    let colision: IntersectionCheckResult;
     if (posBall[0] > posNextBall[0]) {
-      return checkIntersection(
+      colision = checkIntersection(
         posBall[0],
         posBall[1],
         posNextBall[0],
@@ -192,7 +209,7 @@ export class Game {
         goalLeft[1] + 1,
       );
     } else {
-      return checkIntersection(
+      colision = checkIntersection(
         posBall[0],
         posBall[1],
         posNextBall[0],
@@ -203,36 +220,38 @@ export class Game {
         goalRight[1] + 1,
       );
     }
-  }
-
-  private isInclude(num: number, limiteA: number, limiteB: number): boolean {
     if (
-      (limiteA <= limiteB && limiteA <= num && num <= limiteB) ||
-      (limiteB <= limiteA && limiteB <= num && num <= limiteA)
+      colision.type === 'intersecting' &&
+      colinearPointWithinSegment(
+        colision.point.x,
+        colision.point.y,
+        posBall[0],
+        posBall[1],
+        posNextBall[0],
+        posNextBall[1],
+      )
     ) {
-      return true;
+      return colision;
     } else {
-      return false;
+      return { type: 'none' };
     }
   }
 
-  // a remplacer par colinearPointWithinSegment
-
   private segmentColision(
-    lineX1: number,
-    lineY1: number,
-    lineX2: number,
-    lineY2: number,
+    startX1: number,
+    startY1: number,
+    endX2: number,
+    endY2: number,
     segmentX1: number,
     segmentY1: number,
     segmentX2: number,
     segmentY2: number,
   ): IntersectionCheckResult {
     const interLine: IntersectionCheckResult = checkIntersection(
-      lineX1,
-      lineY1,
-      lineX2,
-      lineY2,
+      startX1,
+      startY1,
+      endX2,
+      endY2,
       segmentX1,
       segmentY1,
       segmentX2,
@@ -240,13 +259,31 @@ export class Game {
     );
     if (
       interLine.type == 'intersecting' &&
-      this.isInclude(interLine.point.x, segmentX1, segmentX2) &&
-      this.isInclude(interLine.point.y, segmentY1, segmentY2)
+      colinearPointWithinSegment(
+        interLine.point.x,
+        interLine.point.y,
+        segmentX1,
+        segmentY1,
+        segmentX2,
+        segmentY2,
+      ) &&
+      colinearPointWithinSegment(
+        interLine.point.x,
+        interLine.point.y,
+        startX1,
+        startY1,
+        endX2,
+        endY2,
+      )
     ) {
       return interLine;
     } else {
       return { type: 'none' };
     }
+  }
+
+  private distance(x1: number, x2: number, y1: number, y2: number) {
+    return Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
   }
 
   private rectangleColision(
@@ -257,8 +294,125 @@ export class Game {
     recTop: number,
     recDown: number,
   ): IntersectionCheckResult {
-    //on test les 4 segment
-    //on renvoi l'inter la plus pertinante
+    const leftColistion = this.segmentColision(
+      posBall[0],
+      posBall[1],
+      posNextBall[0],
+      posNextBall[1],
+      recLeft,
+      recTop,
+      recLeft,
+      recDown,
+    );
+    const rightColistion = this.segmentColision(
+      posBall[0],
+      posBall[1],
+      posNextBall[0],
+      posNextBall[1],
+      recRight,
+      recTop,
+      recRight,
+      recDown,
+    );
+    const topColistion = this.segmentColision(
+      posBall[0],
+      posBall[1],
+      posNextBall[0],
+      posNextBall[1],
+      recLeft,
+      recTop,
+      recRight,
+      recTop,
+    );
+    const downColistion = this.segmentColision(
+      posBall[0],
+      posBall[1],
+      posNextBall[0],
+      posNextBall[1],
+      recLeft,
+      recDown,
+      recRight,
+      recDown,
+    );
+    //on veut trouver la collision la plus proche de posBall
+    let leftDistance: number = Number.MAX_VALUE;
+    let rightDistance: number = Number.MAX_VALUE;
+    let topDistance: number = Number.MAX_VALUE;
+    let downDistance: number = Number.MAX_VALUE;
+    if (leftColistion.type === 'intersecting') {
+      leftDistance = this.distance(
+        posBall[0],
+        leftColistion.point.x,
+        posBall[1],
+        leftColistion.point.y,
+      );
+    }
+    if (rightColistion.type === 'intersecting') {
+      rightDistance = this.distance(
+        posBall[0],
+        rightColistion.point.x,
+        posBall[1],
+        rightColistion.point.y,
+      );
+    }
+    if (topColistion.type === 'intersecting') {
+      topDistance = this.distance(
+        posBall[0],
+        topColistion.point.x,
+        posBall[1],
+        topColistion.point.y,
+      );
+    }
+    if (downColistion.type === 'intersecting') {
+      downDistance = this.distance(
+        posBall[0],
+        downColistion.point.x,
+        posBall[1],
+        downColistion.point.y,
+      );
+    }
+    const min = Math.min(
+      leftDistance,
+      rightDistance,
+      topDistance,
+      downDistance,
+    );
+    if (min !== Number.MAX_VALUE) {
+      if (min === leftDistance) {
+        return leftColistion;
+      } else if (min === rightDistance) {
+        return rightColistion;
+      } else if (min === topDistance) {
+        return topColistion;
+      } else if (min === downDistance) {
+        return downColistion;
+      }
+    }
     return { type: 'none' };
+  }
+
+  private racketColision(
+    posBall: number[],
+    posNextBall: number[],
+  ): IntersectionCheckResult {
+    if (posNextBall[0] < this.game.board.width) {
+      return this.rectangleColision(
+        posBall,
+        posNextBall,
+        this.game.states.racketLeft.left - this.game.ball.diammeter,
+        this.game.states.racketLeft.left + this.game.racketLeft.width,
+        this.game.states.racketLeft.top - this.game.ball.diammeter,
+        this.game.states.racketLeft.top + this.game.racketLeft.height,
+      );
+    } else {
+      return this.rectangleColision(
+        posBall,
+        posNextBall,
+        this.game.states.racketRight.left - this.game.ball.diammeter,
+        this.game.states.racketRight.left + this.game.racketRight.width,
+        this.game.states.racketRight.top - this.game.ball.diammeter,
+        this.game.states.racketRight.top + this.game.racketRight.height,
+      );
+    }
   }
 }
