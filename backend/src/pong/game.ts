@@ -3,6 +3,7 @@ import { IGame } from './interfaces/game.interface';
 import { IInput } from './interfaces/input.interface';
 import { checkIntersection, IntersectionCheckResult } from 'line-intersect';
 import { colinearPointWithinSegment } from 'line-intersect';
+import { lineAngle, Point, pointTranslate } from 'geometric';
 
 export class Game {
   private game: IGame;
@@ -105,15 +106,24 @@ export class Game {
 
     // trouver s'il y a une colision et deduire la nouvel position/vitesse
 
-    const posBall = [this.game.states.ball.left, this.game.states.ball.top];
-    const posNextBall = [
+    const posBall: Point = [
+      this.game.states.ball.left,
+      this.game.states.ball.top,
+    ];
+    const posNextBall: Point = [
       posBall[0] + this.game.states.ballDirection[0],
       posBall[1] + this.game.states.ballDirection[1],
     ];
-    const wallDown = [0, this.game.board.height - this.game.board.margin];
-    const wallUp = [0, this.game.board.margin];
-    const goalLeft = [-this.game.ball.diammeter, 0];
-    const goalRight = [this.game.board.width + this.game.ball.diammeter, 0];
+    const wallDown: Point = [
+      0,
+      this.game.board.height - this.game.board.margin,
+    ];
+    const wallUp: Point = [0, this.game.board.margin];
+    const goalLeft: Point = [-this.game.ball.diammeter, 0];
+    const goalRight: Point = [
+      this.game.board.width + this.game.ball.diammeter,
+      0,
+    ];
     const wallColision: IntersectionCheckResult = this.wallColision(
       posBall,
       posNextBall,
@@ -136,24 +146,76 @@ export class Game {
       racketColision,
     ]);
 
-    if (collision == wallColision) {
-    } else if (collision == goalColision) {
-    } else if (collision == racketColision) {
+    if (collision.type === 'intersecting') {
+      if (collision == wallColision) {
+        this.game.states.ball.left = collision.point.x;
+        this.game.states.ball.top = collision.point.y;
+        this.game.states.ballDirection[1] *= -1;
+      } else if (collision == goalColision) {
+        if (collision.point.x < this.game.board.width / 2) {
+          this.game.states.scoreLeft++;
+        } else {
+          this.game.states.scoreRight++;
+        }
+        this.newBall();
+      } else if (collision == racketColision) {
+        this.game.states.ball.left = collision.point.x;
+        this.game.states.ball.top = collision.point.y;
+        this.game.states.ballDirection = this.bounceTrajectory();
+      }
     } else {
       this.game.states.ball.left += this.game.states.ballDirection[0];
       this.game.states.ball.top += this.game.states.ballDirection[1];
     }
-    // si direction vers le bas
-    //  mur bas
-    // apply racket colision
-    // apply goal and update score
+  }
+
+  private bounceTrajectory(): Point {
+    const centerBall: Point = [
+      this.game.states.ball.left + this.game.ball.diammeter / 2,
+      this.game.states.ball.top + this.game.ball.diammeter / 2,
+    ];
+    let centerRacket: Point;
+    if (centerBall[0] < this.game.board.width / 2) {
+      centerRacket = [
+        this.game.states.racketLeft.left + this.game.racketLeft.width / 2,
+        this.game.states.racketLeft.top + this.game.racketLeft.height / 2,
+      ];
+    } else {
+      centerRacket = [
+        this.game.states.racketLeft.left + this.game.racketLeft.width / 2,
+        this.game.states.racketLeft.top + this.game.racketLeft.height / 2,
+      ];
+    }
+    let angle = lineAngle([centerRacket, centerBall]);
+    if (80 < angle && angle < 90) {
+      angle = 80;
+    } else if (90 < angle && angle < 100) {
+      angle = 100;
+    } else if (260 < angle && angle < 270) {
+      angle = 260;
+    } else if (270 < angle && angle < 280) {
+      angle = 280;
+    }
+    return pointTranslate([0, 0], angle, this.game.ball.speed);
+  }
+
+  private newBall(): void {
+    this.game.states.ball.left =
+      (this.game.board.width + this.game.ball.diammeter) / 2;
+    this.game.states.ball.top =
+      (this.game.board.height + this.game.ball.diammeter) / 2;
+    if ((this.game.states.scoreLeft + this.game.states.scoreRight) % 2) {
+      this.game.states.ballDirection = [this.game.ball.speed / 2, 0];
+    } else {
+      this.game.states.ballDirection = [-this.game.ball.speed / 2, 0];
+    }
   }
 
   private wallColision(
-    posBall: number[],
-    posNextBall: number[],
-    wallDown: number[],
-    wallUp: number[],
+    posBall: Point,
+    posNextBall: Point,
+    wallDown: Point,
+    wallUp: Point,
   ): IntersectionCheckResult {
     let colision: IntersectionCheckResult;
     if (posBall[1] < posNextBall[1]) {
@@ -197,10 +259,10 @@ export class Game {
   }
 
   private goalColision(
-    posBall: number[],
-    posNextBall: number[],
-    goalLeft: number[],
-    goalRight: number[],
+    posBall: Point,
+    posNextBall: Point,
+    goalLeft: Point,
+    goalRight: Point,
   ): IntersectionCheckResult {
     let colision: IntersectionCheckResult;
     if (posBall[0] > posNextBall[0]) {
@@ -293,8 +355,8 @@ export class Game {
   }
 
   private rectangleColision(
-    posBall: number[],
-    posNextBall: number[],
+    posBall: Point,
+    posNextBall: Point,
     recLeft: number,
     recRight: number,
     recTop: number,
@@ -350,7 +412,7 @@ export class Game {
 
   // colision la plus proche
   private nearestCollision(
-    posBall: number[],
+    posBall: Point,
     collisions: IntersectionCheckResult[],
   ): IntersectionCheckResult {
     let collisionMin: IntersectionCheckResult = { type: 'none' };
@@ -374,8 +436,8 @@ export class Game {
   }
 
   private racketColision(
-    posBall: number[],
-    posNextBall: number[],
+    posBall: Point,
+    posNextBall: Point,
   ): IntersectionCheckResult {
     if (posNextBall[0] < this.game.board.width) {
       return this.rectangleColision(
