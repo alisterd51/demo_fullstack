@@ -1,6 +1,7 @@
 import { IGameStates } from './interfaces/game-states.interface';
 import { IGame } from './interfaces/game.interface';
 import { IInput } from './interfaces/input.interface';
+import { IRacket } from './interfaces/racket.interface';
 
 export type LevelAi = 'easy' | 'hard';
 
@@ -24,41 +25,72 @@ export class Ai {
   }
 
   public getInput(): IInput {
-    if (this.level === 'easy') {
-      return this.aiV0();
-    } else {
-      return this.aiV1();
-    }
-  }
-
-  private aiV0(): IInput {
-    if (this.userId === this.game.userIdLeft) {
-      return this.ketToCenter(
-        this.game.states.ball.top + this.game.ball.diammeter / 2,
-        this.game.states.racketLeft.top + this.game.racketLeft.height / 2,
-        this.game.racketLeft.height,
-      );
-    } else if (this.userId === this.game.userIdRight) {
-      return this.ketToCenter(
-        this.game.states.ball.top + this.game.ball.diammeter / 2,
-        this.game.states.racketRight.top + this.game.racketRight.height / 2,
-        this.game.racketRight.height,
-      );
-    } else {
+    const racket: IRacket | null = this.getRacket();
+    if (racket == null) {
       return {
         userId: this.userId,
         up: false,
         down: false,
       };
+    } else if (this.level === 'easy') {
+      return this.aiV0(racket);
+    } else {
+      return this.aiV1(racket);
     }
   }
 
-  private aiV1(): IInput {
-    return {
-      userId: this.userId,
-      up: false,
-      down: false,
-    };
+  private getRacket(): IRacket | null {
+    if (this.userId === this.game.userIdLeft) {
+      return {
+        left: this.game.states.racketLeft.left,
+        top: this.game.states.racketLeft.top,
+        width: this.game.racketLeft.width,
+        height: this.game.racketLeft.height,
+      };
+    } else if (this.userId === this.game.userIdRight) {
+      return {
+        left: this.game.states.racketRight.left,
+        top: this.game.states.racketRight.top,
+        width: this.game.racketRight.width,
+        height: this.game.racketRight.height,
+      };
+    } else {
+      return null;
+    }
+  }
+
+  private aiV0(racket: IRacket): IInput {
+    return this.ketToCenter(
+      this.game.states.ball.top + this.game.ball.diammeter / 2,
+      racket.top + racket.height / 2,
+      racket.height,
+    );
+  }
+
+  private aiV1(racket: IRacket): IInput {
+    if (
+      (this.game.states.ballDirection[0] > 0 &&
+        this.game.states.ball.left > racket.left + racket.width) ||
+      (this.game.states.ballDirection[0] < 0 &&
+        this.game.states.ball.left + this.game.ball.diammeter < racket.left)
+    ) {
+      return this.ketToCenter(
+        this.game.board.height / 2,
+        racket.top + racket.height / 2,
+        racket.height,
+      );
+    } else {
+      return this.ketToCenter(
+        this.predictCenter(racket),
+        racket.top + racket.height / 2,
+        racket.height,
+      );
+    }
+  }
+
+  private predictCenter(racket: IRacket): number {
+    // simuler toutes les collision avec les murs jusqu'a la racket
+    return 0;
   }
 
   private ketToCenter(
