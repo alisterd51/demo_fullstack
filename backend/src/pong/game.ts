@@ -16,7 +16,7 @@ export class Game {
   }
 
   public tick(): void {
-    if (!this.game.states.start && this.getWinner() == null) {
+    if (this.game.states.start && this.getWinner() == null) {
       this.moveRacketLeft();
       this.moveRacketRight();
       this.moveBall();
@@ -37,6 +37,10 @@ export class Game {
 
   public updateAll(game: IGame): void {
     this.game = game;
+  }
+
+  public updateStates(states: IGameStates): void {
+    this.game.states = states;
   }
 
   public getGameStates(): IGameStates {
