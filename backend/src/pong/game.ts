@@ -1,8 +1,11 @@
 import { IGameStates } from './interfaces/game-states.interface';
 import { IGame } from './interfaces/game.interface';
 import { IInput } from './interfaces/input.interface';
-import { checkIntersection, IntersectionCheckResult } from 'line-intersect';
-import { colinearPointWithinSegment } from 'line-intersect';
+import {
+  checkIntersection,
+  IntersectionCheckResult,
+  colinearPointWithinSegment,
+} from 'line-intersect';
 import { lineAngle, Point, pointTranslate } from 'geometric';
 
 export class Game {
@@ -13,12 +16,11 @@ export class Game {
   }
 
   public tick(): void {
-    if (!this.game.states.start) {
+    if (!this.game.states.start && this.getWinner() == null) {
       this.moveRacketLeft();
       this.moveRacketRight();
       this.moveBall();
     }
-    // update start
   }
 
   public updateInput(input: IInput): void {
@@ -27,6 +29,10 @@ export class Game {
     } else if (this.game.inputRight.userId === input.userId) {
       this.game.inputRight = input;
     }
+  }
+
+  public updateStart(): void {
+    this.game.states.start = !this.game.states.start;
   }
 
   public updateAll(game: IGame): void {
@@ -39,6 +45,16 @@ export class Game {
 
   public getAll(): IGame {
     return this.game;
+  }
+
+  public getWinner(): number | null {
+    if (this.game.states.scoreLeft >= this.game.scoreToWin) {
+      return this.game.userIdLeft;
+    } else if (this.game.states.scoreRight >= this.game.scoreToWin) {
+      return this.game.userIdRight;
+    } else {
+      return null;
+    }
   }
 
   private moveRacketLeft(): void {
@@ -187,13 +203,13 @@ export class Game {
       ];
     }
     let angle = lineAngle([centerRacket, centerBall]);
-    if (80 < angle && angle < 90) {
+    if (80 <= angle && angle <= 90) {
       angle = 80;
-    } else if (90 < angle && angle < 100) {
+    } else if (90 <= angle && angle <= 100) {
       angle = 100;
-    } else if (260 < angle && angle < 270) {
+    } else if (260 <= angle && angle <= 270) {
       angle = 260;
-    } else if (270 < angle && angle < 280) {
+    } else if (270 <= angle && angle <= 280) {
       angle = 280;
     }
     return pointTranslate([0, 0], angle, this.game.ball.speed);
