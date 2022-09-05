@@ -1,4 +1,4 @@
-import { Line, Point } from 'geometric';
+import { Point } from 'geometric';
 import {
   checkIntersection,
   colinearPointWithinSegment,
@@ -106,19 +106,6 @@ export class Ai {
     ball: Point,
     ballDirection: Point,
   ): number {
-    //fonction recursive qui prend une nouvel ball et un nouveau vecteur vitesse a chaque iter
-
-    //nota: je considere une ball comme son centre:
-    // piste d'amelioration pour la colision avec les murs:
-    //   si la balle vas vers le haut je check top.ball
-    //   sinon top.ball + ball.diammeter
-
-    // simuler toutes les collision avec les murs jusqu'a la racket
-    //  line de position de ma ball et pos suivante
-    //  checker l'inter line/milieu.left de la raquette
-    //  si l'inter sort du jeu on applique un mur puis on recommence
-    //  sinon on renvoi le point d'inter
-
     const racketCenter: Point = [
       racket.left + racket.width / 2,
       racket.top + racket.height / 2,
