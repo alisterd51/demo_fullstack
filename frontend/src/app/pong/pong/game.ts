@@ -7,12 +7,88 @@ import {
   colinearPointWithinSegment,
 } from 'line-intersect';
 import { lineAngle, Point, pointTranslate } from 'geometric';
+import { Injectable } from '@angular/core';
 
+const interval_tick = 8; //16
+const racketHeight = 200;
+const racketWidth = 50;
+const gameHeight = 790;
+const gameWidth = 1000;
+const gameMargin = 10;
+const ballDiameter = 20;
+const racketSpeed = 5; //11
+const ballSpeed = 10; //20
+const defaultKeyUpPlayer1 = 'w';
+const defaultKeyDownPlayer1 = 's';
+const defaultKeyUpPlayer2 = 'ArrowUp';
+const defaultKeyDownPlayer2 = 'ArrowDown';
+const defaultColorRacketPlayer1 = '#5a74c4';
+const defaultColorRacketPlayer2 = '#a43737';
+const keyStart = ' ';
+const scoreToWin = 11; //11
+
+@Injectable()
 export class Game {
-  private game: IGame;
+  private game: IGame = {
+    userIdLeft: 0,
+    userIdRight: 1,
+    gameId: 0,
+    scoreToWin: scoreToWin,
+    board: {
+      width: gameWidth,
+      height: gameHeight,
+      margin: gameMargin,
+      color: '#000000',
+    },
+    racketLeft: {
+      width: racketWidth,
+      height: racketHeight,
+      speed: racketSpeed,
+      color: defaultColorRacketPlayer1,
+    },
+    racketRight: {
+      width: racketWidth,
+      height: racketHeight,
+      speed: racketSpeed,
+      color: defaultColorRacketPlayer2,
+    },
+    inputLeft: {
+      userId: 0,
+      up: false,
+      down: false,
+    },
+    inputRight: {
+      userId: 1,
+      up: false,
+      down: false,
+    },
+    ball: {
+      diammeter: ballDiameter,
+      speed: ballSpeed,
+      collor: '#e5e83b',
+    },
+    states: {
+      gameId: 0,
+      racketLeft: {
+        left: gameMargin,
+        top: gameMargin,
+      },
+      racketRight: {
+        left: gameWidth - gameMargin - racketWidth,
+        top: gameMargin,
+      },
+      ball: {
+        left: gameWidth / 2 - ballDiameter / 2,
+        top: gameHeight / 2 - ballDiameter / 2,
+      },
+      ballDirection: [ballSpeed / 2, 0],
+      scoreLeft: 0,
+      scoreRight: 0,
+      start: false,
+    },
+  };
 
-  public constructor(game: IGame) {
-    this.game = game;
+  public constructor() {
   }
 
   public tick(): void {

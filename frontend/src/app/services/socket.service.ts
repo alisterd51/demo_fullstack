@@ -3,6 +3,7 @@ import { Observable } from 'rxjs';
 import { io } from 'socket.io-client';
 import { IGameStates } from '../pong/interfaces/game-states.interface';
 import { IMove } from '../pong/interfaces/move.interface';
+import { IInput } from '../pong/pong/interfaces/input.interface';
 
 @Injectable({
   providedIn: 'root',
@@ -27,7 +28,7 @@ export class SocketService {
     });
   }
 
-  sendMove(move: IMove): void {
+  sendMove(move: IInput): void {
     this.socket.emit('moveToServer', move);
   }
 

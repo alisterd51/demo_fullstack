@@ -14,6 +14,7 @@ import { PongRacketComponent } from './pong-racket/pong-racket.component';
 import { PongGameComponent } from './pong-game/pong-game.component';
 import { PongBallComponent } from './pong-ball/pong-ball.component';
 import { ChatComponent } from './chat/chat.component';
+import { Game } from './pong/pong/game';
 
 @NgModule({
   declarations: [
