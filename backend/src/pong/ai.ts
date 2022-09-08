@@ -91,8 +91,7 @@ export class Ai {
   private level: LevelAi = 'easy';
   private userId = 0;
 
-  public constructor() {
-  }
+  public constructor() {}
 
   public setLevel(level: LevelAi) {
     this.level = level;

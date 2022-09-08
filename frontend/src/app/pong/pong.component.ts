@@ -1,11 +1,35 @@
 import { Component, OnInit } from '@angular/core';
 import { filter, fromEvent, interval } from 'rxjs';
 import { SocketService } from '../services/socket.service';
-import { Ai } from './pong/ai';
+import { Ai, LevelAi } from './pong/ai';
 import { Game } from './pong/game';
 import { IGameStates } from './pong/interfaces/game-states.interface';
 import { IGame } from './pong/interfaces/game.interface';
 import { IInput } from './pong/interfaces/input.interface';
+
+export type GameMode =
+  | {
+      type: 'local';
+      id: number;
+    }
+  | {
+      type: 'server';
+      id: number;
+    };
+export type PlayerMode =
+  | {
+      type: 'local';
+      upKey: string;
+      downKey: string;
+    }
+  | {
+      type: 'ai';
+      level: LevelAi;
+    }
+  | {
+      type: 'remote';
+      id: number;
+    };
 
 const interval_tick = 8; //16
 const racketHeight = 200;
@@ -102,13 +126,29 @@ export class PongComponent implements OnInit {
     },
   };
 
-  key = {
+  /*leftMode: PlayerMode = {
+    type: 'local',
+    upKey: defaultKeyUpPlayer1,
+    downKey: defaultKeyDownPlayer1,
+  };*/
+  leftMode: PlayerMode = {
+    type: 'ai',
+    level: 'hard',
+  };
+
+  rightMode: PlayerMode = {
+    type: 'local',
+    upKey: defaultKeyUpPlayer2,
+    downKey: defaultKeyDownPlayer2,
+  };
+
+/*  key = {
     leftUp: defaultKeyUpPlayer1,
     leftDown: defaultKeyDownPlayer1,
     rightUp: defaultKeyUpPlayer2,
     rightDown: defaultKeyDownPlayer2,
     start: keyStart,
-  };
+  };*/
 
   moveLeft: IInput = {
     userId: 0,
@@ -121,11 +161,11 @@ export class PongComponent implements OnInit {
     down: false,
   };
 
-  mode = {
+/*  mode = {
     game: 'local',
     racketLeft: 'local',
     racketRight: 'local',
-  };
+  };*/
 
   canvas!: HTMLCanvasElement;
   ctx!: CanvasRenderingContext2D;
@@ -140,8 +180,8 @@ export class PongComponent implements OnInit {
     private game: Game,
     private ai: Ai
   ) {
-    this.game = new Game;
-    this.ai = new Ai;
+    this.game = new Game();
+    this.ai = new Ai();
   }
 
   ngOnInit(): void {
@@ -175,34 +215,87 @@ export class PongComponent implements OnInit {
   }
 
   toUp(key: string) {
-    if (key === this.key.rightUp) {
-      this.moveRight.up = false;
-    } else if (key === this.key.rightDown) {
-      this.moveRight.down = false;
-    } else if (key === this.key.leftUp) {
-      this.moveLeft.up = false;
-    } else if (key === this.key.leftDown) {
-      this.moveLeft.down = false;
+    if (this.leftMode.type === 'local') {
+      if (key === this.leftMode.upKey) {
+        this.moveLeft.up = false;
+      } else if (key === this.leftMode.downKey) {
+        this.moveLeft.down = false;
+      }
+    }
+    if (this.rightMode.type === 'local') {
+      if (key === this.rightMode.upKey) {
+        this.moveRight.up = false;
+      } else if (key === this.rightMode.downKey) {
+        this.moveRight.down = false;
+      }
     }
   }
 
   toDown(key: string) {
-    if (key === this.key.start) {
+    if (this.leftMode.type === 'local') {
+      if (key === this.leftMode.upKey) {
+        this.moveLeft.up = true;
+      } else if (key === this.leftMode.downKey) {
+        this.moveLeft.down = true;
+      }
+    }
+    if (this.rightMode.type === 'local') {
+      if (key === this.rightMode.upKey) {
+        this.moveRight.up = true;
+      } else if (key === this.rightMode.downKey) {
+        this.moveRight.down = true;
+      }
+    }
+    if (key === keyStart) {
       this.game.start();
-    } else if (key === this.key.rightUp) {
-      this.moveRight.up = true;
-    } else if (key === this.key.rightDown) {
-      this.moveRight.down = true;
-    } else if (key === this.key.leftUp) {
-      this.moveLeft.up = true;
-    } else if (key === this.key.leftDown) {
-      this.moveLeft.down = true;
     }
   }
 
   tick(): void {
-    this.game.updateInput(this.moveLeft);
-    this.game.updateInput(this.moveRight);
+    //moveLeft:
+    // si jeu local:
+    //  si joueur:
+    //   calcul la vrai pos
+    //   envoie les states
+    //  si ia:
+    //   calcul la vrai pos
+    //   envoie les states
+    //  si distant:
+    //   recois les inputs
+    //   calcul la vrai pos
+    //   envoie les states
+    // si remote:
+    //  si joueur:
+    //   envoi les inputs
+    //   estime les pos
+    //   maj avec les states
+    //  si ia:
+    //   envoi les inputs
+    //   estime les pos
+    //   maj avec les states
+    //  si distant:
+    //   recois states distant
+    //   estime la nouvel pos
+    if (this.leftMode.type === 'local') {
+      this.game.updateInput(this.moveLeft);
+    } else if (this.leftMode.type === 'ai') {
+      this.ai.setStates(this.gameConfig.states);
+      this.ai.setLevel(this.leftMode.level);
+      this.ai.setUserId(this.gameConfig.userIdLeft);
+      this.game.updateInput(this.ai.getInput());
+    } else if (this.leftMode.type === 'remote') {
+      //
+    }
+    if (this.rightMode.type === 'local') {
+      this.game.updateInput(this.moveRight);
+    } else if (this.rightMode.type === 'ai') {
+      this.ai.setStates(this.gameConfig.states);
+      this.ai.setLevel(this.rightMode.level);
+      this.ai.setUserId(this.gameConfig.userIdRight);
+      this.game.updateInput(this.ai.getInput());
+    } else if (this.rightMode.type === 'remote') {
+      //
+    }
     this.game.tick();
     this.gameConfig.states = this.game.getGameStates();
     this.sendGameStates(this.gameConfig.states);

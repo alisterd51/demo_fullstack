@@ -108,6 +108,10 @@ export class Ai {
     this.userId = userId;
   }
 
+  public setAll(game: IGame) {
+    this.game = game;
+  }
+
   public getInput(): IInput {
     const racket: IRacket | null = this.getRacket();
     if (racket == null) {
