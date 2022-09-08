@@ -7,7 +7,6 @@ import {
   colinearPointWithinSegment,
 } from 'line-intersect';
 import { lineAngle, Point, pointTranslate } from 'geometric';
-import { Injectable } from '@angular/core';
 
 const interval_tick = 8; //16
 const racketHeight = 200;
@@ -27,7 +26,6 @@ const defaultColorRacketPlayer2 = '#a43737';
 const keyStart = ' ';
 const scoreToWin = 11; //11
 
-@Injectable()
 export class Game {
   private game: IGame = {
     userIdLeft: 0,

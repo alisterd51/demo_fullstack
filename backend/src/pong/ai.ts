@@ -1,4 +1,3 @@
-import { Injectable } from '@angular/core';
 import { Point } from 'geometric';
 import {
   checkIntersection,
@@ -30,7 +29,6 @@ const defaultColorRacketPlayer2 = '#a43737';
 const keyStart = ' ';
 const scoreToWin = 11; //11
 
-@Injectable()
 export class Ai {
   private game: IGame = {
     userIdLeft: 0,
