@@ -16,8 +16,8 @@ const gameHeight = 790;
 const gameWidth = 1000;
 const gameMargin = 10;
 const ballDiameter = 20;
-const racketSpeed = 5; //11
-const ballSpeed = 10; //20
+const racketSpeed = 10; //11
+const ballSpeed = 5; //20
 const defaultKeyUpPlayer1 = 'w';
 const defaultKeyDownPlayer1 = 's';
 const defaultKeyUpPlayer2 = 'ArrowUp';
@@ -237,6 +237,7 @@ export class Game {
       } else if (collision == racketColision) {
         this.game.states.ball.left = collision.point.x;
         this.game.states.ball.top = collision.point.y;
+        this.game.ball.speed *= 1.01;
         this.game.states.ballDirection = this.bounceTrajectory();
       }
     } else {
@@ -276,14 +277,15 @@ export class Game {
   }
 
   private newBall(): void {
+    this.game.ball.speed = ballSpeed;
     this.game.states.ball.left =
       (this.game.board.width + this.game.ball.diammeter) / 2;
     this.game.states.ball.top =
       (this.game.board.height + this.game.ball.diammeter) / 2;
     if ((this.game.states.scoreLeft + this.game.states.scoreRight) % 2) {
-      this.game.states.ballDirection = [this.game.ball.speed / 2, 0];
-    } else {
       this.game.states.ballDirection = [-this.game.ball.speed / 2, 0];
+    } else {
+      this.game.states.ballDirection = [this.game.ball.speed / 2, 0];
     }
   }
 
@@ -368,6 +370,25 @@ export class Game {
         goalRight[0],
         this.game.board.height
       );
+    }
+    if (colision.type !== 'intersecting') {
+      if (posBall[0] < -this.game.ball.diammeter) {
+        colision = {
+          type: 'intersecting',
+          point: {
+            x: -this.game.ball.diammeter,
+            y: posBall[1]
+          }
+        };
+      } else if (posBall[0] > this.game.board.width) {
+        colision = {
+          type: 'intersecting',
+          point: {
+            x: this.game.board.width,
+            y: posBall[1]
+          }
+        };
+      }
     }
     return colision;
   }

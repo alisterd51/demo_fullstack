@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Point } from 'geometric';
+import { lineAngle, Point, pointTranslate } from 'geometric';
 import {
   checkIntersection,
   colinearPointWithinSegment,
@@ -93,8 +93,7 @@ export class Ai {
   private level: LevelAi = 'easy';
   private userId = 0;
 
-  public constructor() {
-  }
+  public constructor() {}
 
   public setLevel(level: LevelAi) {
     this.level = level;
@@ -151,7 +150,7 @@ export class Ai {
     return this.ketToCenter(
       this.game.states.ball.top + this.game.ball.diammeter / 2,
       racket.top + racket.height / 2,
-      racket.height,
+      racket.height
     );
   }
 
@@ -165,20 +164,22 @@ export class Ai {
       return this.ketToCenter(
         this.game.board.height / 2,
         racket.top + racket.height / 2,
-        racket.height,
+        racket.height
       );
     } else {
       const ball: Point = [
         this.game.states.ball.left + this.game.ball.diammeter / 2,
         this.game.states.ball.top + this.game.ball.diammeter / 2,
       ];
+      const angle = lineAngle([
+        [0, 0],
+        [this.game.states.ballDirection[0], this.game.states.ballDirection[1]],
+      ]);
+      const test = pointTranslate([0, 0], angle, 10000);
       return this.ketToCenter(
-        this.predictCenter(racket, ball, [
-          this.game.states.ballDirection[0],
-          this.game.states.ballDirection[1],
-        ]),
+        this.predictCenter(racket, ball, test),
         racket.top + racket.height / 2,
-        racket.height,
+        racket.height
       );
     }
   }
@@ -186,7 +187,7 @@ export class Ai {
   private predictCenter(
     racket: IRacket,
     ball: Point,
-    ballDirection: Point,
+    ballDirection: Point
   ): number {
     const racketCenter: Point = [
       racket.left + racket.width / 2,
@@ -200,7 +201,7 @@ export class Ai {
       racketCenter[0],
       0,
       racketCenter[0],
-      this.game.board.height,
+      this.game.board.height
     );
     const wall: Point =
       ballDirection[1] < 0 ? [0, 0] : [0, this.game.board.height];
@@ -212,7 +213,7 @@ export class Ai {
       wall[0],
       wall[1],
       this.game.board.width,
-      wall[1],
+      wall[1]
     );
     if (
       racketColision.type === 'intersecting' &&
@@ -222,7 +223,7 @@ export class Ai {
         racketCenter[0],
         0,
         racketCenter[0],
-        this.game.board.height,
+        this.game.board.height
       )
     ) {
       return racketColision.point.y;
@@ -230,7 +231,7 @@ export class Ai {
       return this.predictCenter(
         racket,
         [wallColision.point.x, wallColision.point.y],
-        [ballDirection[0], ballDirection[1] * -1],
+        [ballDirection[0], ballDirection[1] * -1]
       );
     } else {
       return this.game.board.height / 2;
@@ -240,17 +241,17 @@ export class Ai {
   private ketToCenter(
     centerBall: number,
     centerRacket: number,
-    heightRacket: number,
+    heightRacket: number
   ): IInput {
-    const input: IInput = {
+    let input: IInput = {
       userId: this.userId,
       up: false,
       down: false,
     };
     if (centerBall > centerRacket + heightRacket / 4) {
-      input.up = true;
-    } else if (centerBall > centerRacket - heightRacket / 4) {
       input.down = true;
+    } else if (centerBall < centerRacket - heightRacket / 4) {
+      input.up = true;
     }
     return input;
   }

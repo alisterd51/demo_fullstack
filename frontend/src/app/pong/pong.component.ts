@@ -33,13 +33,13 @@ export type PlayerMode =
 
 const interval_tick = 8; //16
 const racketHeight = 200;
-const racketWidth = 200;
+const racketWidth = 50;
 const gameHeight = 790;
 const gameWidth = 1000;
 const gameMargin = 10;
 const ballDiameter = 20;
 const racketSpeed = 10; //11
-const ballSpeed = 10; //20
+const ballSpeed = 5; //20
 const defaultKeyUpPlayer1 = 'w';
 const defaultKeyDownPlayer1 = 's';
 const defaultKeyUpPlayer2 = 'ArrowUp';
@@ -109,11 +109,11 @@ export class PongComponent implements OnInit {
       gameId: 0,
       racketLeft: {
         left: gameMargin,
-        top: gameMargin,
+        top: gameHeight / 2,
       },
       racketRight: {
         left: gameWidth - gameMargin - racketWidth,
-        top: gameMargin,
+        top: gameHeight / 2,
       },
       ball: {
         left: gameWidth / 2 - ballDiameter / 2,
@@ -137,9 +137,8 @@ export class PongComponent implements OnInit {
   };
 
   rightMode: PlayerMode = {
-    type: 'local',
-    upKey: defaultKeyUpPlayer2,
-    downKey: defaultKeyDownPlayer2,
+    type: 'ai',
+    level: 'hard',
   };
 
 /*  key = {
@@ -182,6 +181,8 @@ export class PongComponent implements OnInit {
   ) {
     this.game = new Game();
     this.ai = new Ai();
+    this.game.updateAll(this.gameConfig);
+    this.ai.setAll(this.gameConfig);
   }
 
   ngOnInit(): void {
@@ -334,11 +335,11 @@ export class PongComponent implements OnInit {
       gameId: 0,
       racketLeft: {
         left: gameMargin,
-        top: gameMargin,
+        top: (gameHeight - racketHeight) / 2,
       },
       racketRight: {
         left: gameWidth - gameMargin - racketWidth,
-        top: gameMargin,
+        top: (gameHeight - racketHeight) / 2,
       },
       ball: {
         left: gameWidth / 2 - ballDiameter / 2,
@@ -395,11 +396,11 @@ export class PongComponent implements OnInit {
         gameId: 0,
         racketLeft: {
           left: gameMargin,
-          top: gameMargin,
+          top: (gameHeight - racketHeight) / 2,
         },
         racketRight: {
           left: gameWidth - gameMargin - racketWidth,
-          top: gameMargin,
+          top: (gameHeight - racketHeight) / 2,
         },
         ball: {
           left: gameWidth / 2 - ballDiameter / 2,
