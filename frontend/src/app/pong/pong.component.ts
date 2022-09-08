@@ -14,7 +14,7 @@ const gameHeight = 790;
 const gameWidth = 1000;
 const gameMargin = 10;
 const ballDiameter = 20;
-const racketSpeed = 5; //11
+const racketSpeed = 10; //11
 const ballSpeed = 10; //20
 const defaultKeyUpPlayer1 = 'w';
 const defaultKeyDownPlayer1 = 's';
@@ -152,7 +152,7 @@ export class PongComponent implements OnInit {
       this.game.updateStates(states);
     });
     interval(interval_tick).subscribe(() => {
-      this.game.tick();
+      this.tick();
     });
     this.fup$.pipe(filter((event) => !event.repeat)).subscribe((event) => {
       this.toUp(event.key);
@@ -213,7 +213,7 @@ export class PongComponent implements OnInit {
   }
 
   win() {
-    return this.game.getWinner;
+    return this.game.getWinner();
   }
 
   // il faut que le serveur mette d'accord les distant sur la pose et l'etat actuel du jeu
@@ -427,7 +427,7 @@ export class PongComponent implements OnInit {
       gameHeight * 0.05
     );
     this.ctx.fillText(
-      String(this.gameConfig.states.scoreLeft),
+      String(this.gameConfig.states.scoreRight),
       gameWidth * 0.6,
       gameHeight * 0.05
     );
