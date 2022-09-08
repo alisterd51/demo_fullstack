@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { IRacket } from '../pong/interfaces/racket.interface';
+import { IRacketConfig } from '../pong/pong/interfaces/racket-config.interface';
 
 @Component({
   selector: 'app-pong-racket',
@@ -8,7 +8,7 @@ import { IRacket } from '../pong/interfaces/racket.interface';
 })
 export class PongRacketComponent implements OnInit {
   @Input()
-  player!: IRacket;
+  player!: IRacketConfig;
 
   constructor() { }
 

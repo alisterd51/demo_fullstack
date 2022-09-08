@@ -1,8 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { io } from 'socket.io-client';
-import { IGameStates } from '../pong/interfaces/game-states.interface';
-import { IMove } from '../pong/interfaces/move.interface';
+import { IGameStates } from '../pong/pong/interfaces/game-states.interface';
 import { IInput } from '../pong/pong/interfaces/input.interface';
 
 @Injectable({
@@ -32,8 +31,8 @@ export class SocketService {
     this.socket.emit('moveToServer', move);
   }
 
-  getMove(): Observable<IMove> {
-    return new Observable<IMove>((observer) => {
+  getMove(): Observable<IInput> {
+    return new Observable<IInput>((observer) => {
       this.socket.on('moveToClient', (message) => {
         observer.next(message);
       });

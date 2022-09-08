@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { IGame } from '../pong/interfaces/game.interface';
+import { IGame } from '../pong/pong/interfaces/game.interface';
 
 @Component({
   selector: 'app-pong-game',

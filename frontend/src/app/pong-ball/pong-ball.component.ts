@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { IBall } from '../pong/interfaces/ball.interface';
+import { IBallConfig } from '../pong/pong/interfaces/ball-config.interface';
 
 @Component({
   selector: 'app-pong-ball',
@@ -8,7 +8,7 @@ import { IBall } from '../pong/interfaces/ball.interface';
 })
 export class PongBallComponent implements OnInit {
   @Input()
-  ball!: IBall;
+  ball!: IBallConfig;
 
   constructor() { }
 
