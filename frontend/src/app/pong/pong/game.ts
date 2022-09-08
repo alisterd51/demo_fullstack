@@ -11,7 +11,7 @@ import { Injectable } from '@angular/core';
 
 const interval_tick = 8; //16
 const racketHeight = 200;
-const racketWidth = 50;
+const racketWidth = 200;
 const gameHeight = 790;
 const gameWidth = 1000;
 const gameMargin = 10;
@@ -181,26 +181,6 @@ export class Game {
   }
 
   private moveBall(): void {
-    // cas1: on ne touche rien:
-    //  la ball se teleporte a sa nouvelle position
-    // cas2: la ball vas traverser un mur:
-    //  postion de la ball = point d'intersect
-    //  direction de la ball = inversion de la distance en y
-    // cas3: la ball vas toucher une racket:
-    //  postion de la ball = point d'intersect
-    //  direction de la ball = new direc en fonction de l'angle ball/racket
-    // cas4: la ball vas sortir du terrain:
-    //  update du score
-    //  newBall
-    // cas5: la ball est coincer entre une racket et un mur:
-    //  la ball se teleporte a gauche ou droite de la racket
-    // apply next position
-    // apply wall colision
-    // si direction vers le haut
-    //  mur haut
-
-    // trouver s'il y a une colision et deduire la nouvel position/vitesse
-
     const posBall: Point = [
       this.game.states.ball.left,
       this.game.states.ball.top,
@@ -336,6 +316,25 @@ export class Game {
         this.game.board.width,
         wallUp[1]
       );
+    }
+    if (colision.type !== 'intersecting') {
+      if (posNextBall[1] < wallUp[1]) {
+        colision = {
+          type: 'intersecting',
+          point: {
+            x: posNextBall[0],
+            y: wallUp[1],
+          },
+        };
+      } else if (posNextBall[1] > wallDown[1] - this.game.ball.diammeter) {
+        colision = {
+          type: 'intersecting',
+          point: {
+            x: posNextBall[0],
+            y: wallDown[1] - this.game.ball.diammeter,
+          },
+        };
+      }
     }
     return colision;
   }

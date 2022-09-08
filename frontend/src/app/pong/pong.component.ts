@@ -9,7 +9,7 @@ import { IInput } from './pong/interfaces/input.interface';
 
 const interval_tick = 8; //16
 const racketHeight = 200;
-const racketWidth = 50;
+const racketWidth = 200;
 const gameHeight = 790;
 const gameWidth = 1000;
 const gameMargin = 10;
