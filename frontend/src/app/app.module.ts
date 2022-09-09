@@ -15,6 +15,7 @@ import { PongGameComponent } from './pong-game/pong-game.component';
 import { PongBallComponent } from './pong-ball/pong-ball.component';
 import { ChatComponent } from './chat/chat.component';
 import { Game } from './pong/pong/game';
+import { PongPlayerComponent } from './pong-player/pong-player.component';
 
 @NgModule({
   declarations: [
@@ -28,6 +29,7 @@ import { Game } from './pong/pong/game';
     PongGameComponent,
     PongBallComponent,
     ChatComponent,
+    PongPlayerComponent,
   ],
   imports: [
     BrowserModule,

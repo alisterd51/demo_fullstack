@@ -8,7 +8,7 @@ import { IRacketConfig } from '../pong/pong/interfaces/racket-config.interface';
 })
 export class PongRacketComponent implements OnInit {
   @Input()
-  player!: IRacketConfig;
+  racket!: IRacketConfig;
 
   constructor() { }
 

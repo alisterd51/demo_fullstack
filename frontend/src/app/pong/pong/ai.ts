@@ -15,7 +15,7 @@ export type LevelAi = 'easy' | 'hard';
 
 @Injectable()
 export class Ai {
-  private game: IGame = defaultGameConfig;
+  private game: IGame = structuredClone(defaultGameConfig);
   private level: LevelAi = 'easy';
   private userId = 0;
 

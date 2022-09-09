@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { filter, fromEvent, interval } from 'rxjs';
 import { SocketService } from '../services/socket.service';
-import { Ai, LevelAi } from './pong/ai';
+import { Ai } from './pong/ai';
 import { defaultGameConfig } from './pong/config';
 import { Game } from './pong/game';
 import { IGameStates } from './pong/interfaces/game-states.interface';
@@ -29,7 +29,7 @@ const keyStart = ' ';
   providers: [Game, Ai],
 })
 export class PongComponent implements OnInit {
-  gameConfig: IGame = defaultGameConfig;
+  gameConfig: IGame = structuredClone(defaultGameConfig);
 
   moveLeft: IInput = {
     userId: 0,
@@ -211,11 +211,11 @@ export class PongComponent implements OnInit {
   }
 
   reset(): void {
-    this.game.updateStates(defaultGameConfig.states);
+    this.game.updateStates(structuredClone(defaultGameConfig).states);
   }
 
   resetAll(): void {
-    this.game.updateAll(defaultGameConfig);
+    this.game.updateAll(structuredClone(defaultGameConfig));
   }
 
   roundRect(

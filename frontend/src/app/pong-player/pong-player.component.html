@@ -1,0 +1,34 @@
+<p>pong-player works!</p>
+
+<label for="id">
+  id:
+  <input type="number" name="id" id="id" [(ngModel)]="player.id" />
+</label>
+
+<label for="mode">
+  mode:
+  <select [(ngModel)]="player.mode.type" name="mode" id="mode">
+    <option value="local">local</option>
+    <option value="ai">ai</option>
+    <option value="remote">remote</option>
+  </select>
+</label>
+<label *ngIf="player.mode.type === 'local'" for="key">
+  upKey:
+  <input id="upKey" [(ngModel)]="player.mode.upKey" placeholder="upKey" />
+  downKey:
+  <input id="downKey" [(ngModel)]="player.mode.downKey" placeholder="downKey" />
+</label>
+<label *ngIf="player.mode.type === 'ai'" for="level">
+  level:
+  <select [(ngModel)]="player.mode.level" name="level" id="level">
+    <option value="easy">easy</option>
+    <option value="hard">hard</option>
+  </select>
+</label>
+<label *ngIf="player.mode.type === 'remote'" for="id">
+  id:
+  <input id="id" [(ngModel)]="player.mode.id" placeholder="id" />
+</label>
+
+<app-pong-racket [racket]="player.racket"></app-pong-racket>

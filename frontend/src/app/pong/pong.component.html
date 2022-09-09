@@ -18,8 +18,8 @@
     <button (click)="reset()">new game</button>
     <button (click)="resetAll()">reset all params</button>
     
-    <app-pong-racket [player]="gameConfig.left.racket"></app-pong-racket>
-    <app-pong-racket [player]="gameConfig.right.racket"></app-pong-racket>
+    <app-pong-player [player]="gameConfig.left"></app-pong-player>
+    <app-pong-player [player]="gameConfig.right"></app-pong-player>
     <app-pong-ball [ball]="gameConfig.ball"></app-pong-ball>
     <app-pong-game [game]="gameConfig"></app-pong-game>
     

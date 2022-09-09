@@ -8,7 +8,7 @@ import { defaultGameConfig } from './config';
 
 @Injectable()
 export class Game {
-  private game: IGame = defaultGameConfig;
+  private game: IGame = structuredClone(defaultGameConfig);
 
   public constructor() {}
 
@@ -113,9 +113,9 @@ export class Game {
     ];
     const wallDown: Point = [
       0,
-      this.game.board.board.height - this.game.board.board.margin,
+      this.game.board.board.height,
     ];
-    const wallUp: Point = [0, this.game.board.board.margin];
+  const wallUp: Point = [0, 0];
     const goalLeft: Point = [-this.game.ball.diammeter, 0];
     const goalRight: Point = [
       this.game.board.board.width + this.game.ball.diammeter,
