@@ -153,6 +153,13 @@ export class PongComponent implements OnInit {
     //  si distant:
     //   recois states distant
     //   estime la nouvel pos
+
+    //update racket right left
+    this.gameConfig.states.racketRight.left =
+      this.gameConfig.board.board.width -
+      this.gameConfig.board.board.margin -
+      this.gameConfig.right.racket.width;
+
     this.game.updateInput(
       this.getInput(
         this.gameConfig.left.mode,
@@ -283,7 +290,10 @@ export class PongComponent implements OnInit {
     this.ctx.beginPath();
     this.ctx.setLineDash([5, 15]);
     this.ctx.moveTo(this.gameConfig.board.board.width / 2, 0);
-    this.ctx.lineTo(this.gameConfig.board.board.width / 2, this.gameConfig.board.board.height);
+    this.ctx.lineTo(
+      this.gameConfig.board.board.width / 2,
+      this.gameConfig.board.board.height
+    );
     this.ctx.stroke();
 
     // draw left racket

@@ -1,90 +1,14 @@
 import { IGameStates } from './interfaces/game-states.interface';
 import { IGame } from './interfaces/game.interface';
 import { IInput } from './interfaces/input.interface';
-import {
-  checkIntersection,
-  IntersectionCheckResult,
-  colinearPointWithinSegment,
-} from 'line-intersect';
+import { checkIntersection, IntersectionCheckResult } from 'line-intersect';
 import { lineAngle, Point, pointTranslate } from 'geometric';
+import { Injectable } from '@angular/core';
+import { defaultGameConfig } from './config';
 
-const interval_tick = 8; //16
-const racketHeight = 200;
-const racketWidth = 200;
-const gameHeight = 790;
-const gameWidth = 1000;
-const gameMargin = 10;
-const ballDiameter = 20;
-const racketSpeed = 5; //11
-const ballSpeed = 10; //20
-const defaultKeyUpPlayer1 = 'w';
-const defaultKeyDownPlayer1 = 's';
-const defaultKeyUpPlayer2 = 'ArrowUp';
-const defaultKeyDownPlayer2 = 'ArrowDown';
-const defaultColorRacketPlayer1 = '#5a74c4';
-const defaultColorRacketPlayer2 = '#a43737';
-const keyStart = ' ';
-const scoreToWin = 11; //11
-
+@Injectable()
 export class Game {
-  private game: IGame = {
-    userIdLeft: 0,
-    userIdRight: 1,
-    gameId: 0,
-    scoreToWin: scoreToWin,
-    board: {
-      width: gameWidth,
-      height: gameHeight,
-      margin: gameMargin,
-      color: '#000000',
-    },
-    racketLeft: {
-      width: racketWidth,
-      height: racketHeight,
-      speed: racketSpeed,
-      color: defaultColorRacketPlayer1,
-    },
-    racketRight: {
-      width: racketWidth,
-      height: racketHeight,
-      speed: racketSpeed,
-      color: defaultColorRacketPlayer2,
-    },
-    inputLeft: {
-      userId: 0,
-      up: false,
-      down: false,
-    },
-    inputRight: {
-      userId: 1,
-      up: false,
-      down: false,
-    },
-    ball: {
-      diammeter: ballDiameter,
-      speed: ballSpeed,
-      collor: '#e5e83b',
-    },
-    states: {
-      gameId: 0,
-      racketLeft: {
-        left: gameMargin,
-        top: gameMargin,
-      },
-      racketRight: {
-        left: gameWidth - gameMargin - racketWidth,
-        top: gameMargin,
-      },
-      ball: {
-        left: gameWidth / 2 - ballDiameter / 2,
-        top: gameHeight / 2 - ballDiameter / 2,
-      },
-      ballDirection: [ballSpeed / 2, 0],
-      scoreLeft: 0,
-      scoreRight: 0,
-      start: false,
-    },
-  };
+  private game: IGame = structuredClone(defaultGameConfig);
 
   public constructor() {}
 
@@ -97,10 +21,10 @@ export class Game {
   }
 
   public updateInput(input: IInput): void {
-    if (this.game.inputLeft.userId === input.userId) {
-      this.game.inputLeft = input;
-    } else if (this.game.inputRight.userId === input.userId) {
-      this.game.inputRight = input;
+    if (this.game.left.id === input.userId) {
+      this.game.left.input = input;
+    } else if (this.game.right.id === input.userId) {
+      this.game.right.input = input;
     }
   }
 
@@ -125,55 +49,55 @@ export class Game {
   }
 
   public getWinner(): number | null {
-    if (this.game.states.scoreLeft >= this.game.scoreToWin) {
-      return this.game.userIdLeft;
-    } else if (this.game.states.scoreRight >= this.game.scoreToWin) {
-      return this.game.userIdRight;
+    if (this.game.states.scoreLeft >= this.game.board.scoreToWin) {
+      return this.game.left.id;
+    } else if (this.game.states.scoreRight >= this.game.board.scoreToWin) {
+      return this.game.right.id;
     } else {
       return null;
     }
   }
 
   private moveRacketLeft(): void {
-    if (this.game.inputLeft.down && !this.game.inputLeft.up) {
-      this.game.states.racketLeft.top += this.game.racketLeft.speed;
+    if (this.game.left.input.down && !this.game.left.input.up) {
+      this.game.states.racketLeft.top += this.game.left.racket.speed;
       if (
         this.game.states.racketLeft.top >
-        this.game.board.height -
-          this.game.board.margin -
-          this.game.racketLeft.height
+        this.game.board.board.height -
+          this.game.board.board.margin -
+          this.game.left.racket.height
       ) {
         this.game.states.racketLeft.top =
-          this.game.board.height -
-          this.game.board.margin -
-          this.game.racketLeft.height;
+          this.game.board.board.height -
+          this.game.board.board.margin -
+          this.game.left.racket.height;
       }
-    } else if (!this.game.inputLeft.down && this.game.inputLeft.up) {
-      this.game.states.racketLeft.top -= this.game.racketLeft.speed;
-      if (this.game.states.racketLeft.top < this.game.board.margin) {
-        this.game.states.racketLeft.top = this.game.board.margin;
+    } else if (!this.game.left.input.down && this.game.left.input.up) {
+      this.game.states.racketLeft.top -= this.game.left.racket.speed;
+      if (this.game.states.racketLeft.top < this.game.board.board.margin) {
+        this.game.states.racketLeft.top = this.game.board.board.margin;
       }
     }
   }
 
   private moveRacketRight(): void {
-    if (this.game.inputRight.down && !this.game.inputRight.up) {
-      this.game.states.racketRight.top += this.game.racketRight.speed;
+    if (this.game.right.input.down && !this.game.right.input.up) {
+      this.game.states.racketRight.top += this.game.right.racket.speed;
       if (
         this.game.states.racketRight.top >
-        this.game.board.height -
-          this.game.board.margin -
-          this.game.racketRight.height
+        this.game.board.board.height -
+          this.game.board.board.margin -
+          this.game.right.racket.height
       ) {
         this.game.states.racketRight.top =
-          this.game.board.height -
-          this.game.board.margin -
-          this.game.racketRight.height;
+          this.game.board.board.height -
+          this.game.board.board.margin -
+          this.game.right.racket.height;
       }
-    } else if (!this.game.inputRight.down && this.game.inputRight.up) {
-      this.game.states.racketRight.top -= this.game.racketRight.speed;
-      if (this.game.states.racketRight.top < this.game.board.margin) {
-        this.game.states.racketRight.top = this.game.board.margin;
+    } else if (!this.game.right.input.down && this.game.right.input.up) {
+      this.game.states.racketRight.top -= this.game.right.racket.speed;
+      if (this.game.states.racketRight.top < this.game.board.board.margin) {
+        this.game.states.racketRight.top = this.game.board.board.margin;
       }
     }
   }
@@ -189,12 +113,12 @@ export class Game {
     ];
     const wallDown: Point = [
       0,
-      this.game.board.height - this.game.board.margin,
+      this.game.board.board.height,
     ];
-    const wallUp: Point = [0, this.game.board.margin];
+  const wallUp: Point = [0, 0];
     const goalLeft: Point = [-this.game.ball.diammeter, 0];
     const goalRight: Point = [
-      this.game.board.width + this.game.ball.diammeter,
+      this.game.board.board.width + this.game.ball.diammeter,
       0,
     ];
     const wallColision: IntersectionCheckResult = this.wallColision(
@@ -226,7 +150,7 @@ export class Game {
         this.game.states.ball.top = collision.point.y;
         this.game.states.ballDirection[1] *= -1;
       } else if (collision == goalColision) {
-        if (collision.point.x < this.game.board.width / 2) {
+        if (collision.point.x < this.game.board.board.width / 2) {
           this.game.states.scoreRight++;
         } else {
           this.game.states.scoreLeft++;
@@ -235,6 +159,7 @@ export class Game {
       } else if (collision == racketColision) {
         this.game.states.ball.left = collision.point.x;
         this.game.states.ball.top = collision.point.y;
+        this.game.states.ballSpeed *= 1.01;
         this.game.states.ballDirection = this.bounceTrajectory();
       }
     } else {
@@ -249,15 +174,15 @@ export class Game {
       this.game.states.ball.top + this.game.ball.diammeter / 2,
     ];
     let centerRacket: Point;
-    if (centerBall[0] < this.game.board.width / 2) {
+    if (centerBall[0] < this.game.board.board.width / 2) {
       centerRacket = [
-        this.game.states.racketLeft.left + this.game.racketLeft.width / 2,
-        this.game.states.racketLeft.top + this.game.racketLeft.height / 2,
+        this.game.states.racketLeft.left + this.game.left.racket.width / 2,
+        this.game.states.racketLeft.top + this.game.left.racket.height / 2,
       ];
     } else {
       centerRacket = [
-        this.game.states.racketRight.left + this.game.racketRight.width / 2,
-        this.game.states.racketRight.top + this.game.racketRight.height / 2,
+        this.game.states.racketRight.left + this.game.right.racket.width / 2,
+        this.game.states.racketRight.top + this.game.right.racket.height / 2,
       ];
     }
     let angle = (lineAngle([centerRacket, centerBall]) + 360) % 360;
@@ -270,18 +195,19 @@ export class Game {
     } else if (270 <= angle && angle <= 280) {
       angle = 280;
     }
-    return pointTranslate([0, 0], angle, this.game.ball.speed);
+    return pointTranslate([0, 0], angle, this.game.states.ballSpeed);
   }
 
   private newBall(): void {
+    this.game.states.ballSpeed = this.game.ball.speed;
     this.game.states.ball.left =
-      (this.game.board.width + this.game.ball.diammeter) / 2;
+      (this.game.board.board.width + this.game.ball.diammeter) / 2;
     this.game.states.ball.top =
-      (this.game.board.height + this.game.ball.diammeter) / 2;
+      (this.game.board.board.height + this.game.ball.diammeter) / 2;
     if ((this.game.states.scoreLeft + this.game.states.scoreRight) % 2) {
-      this.game.states.ballDirection = [this.game.ball.speed / 2, 0];
+      this.game.states.ballDirection = [-this.game.states.ballSpeed / 2, 0];
     } else {
-      this.game.states.ballDirection = [-this.game.ball.speed / 2, 0];
+      this.game.states.ballDirection = [this.game.states.ballSpeed / 2, 0];
     }
   }
 
@@ -300,7 +226,7 @@ export class Game {
         posNextBall[1],
         wallDown[0],
         wallDown[1] - this.game.ball.diammeter,
-        this.game.board.width,
+        this.game.board.board.width,
         wallDown[1] - this.game.ball.diammeter
       );
     } else {
@@ -311,7 +237,7 @@ export class Game {
         posNextBall[1],
         wallUp[0],
         wallUp[1],
-        this.game.board.width,
+        this.game.board.board.width,
         wallUp[1]
       );
     }
@@ -353,7 +279,7 @@ export class Game {
         goalLeft[0],
         goalLeft[1],
         goalLeft[0],
-        this.game.board.height
+        this.game.board.board.height
       );
     } else {
       colision = checkIntersection(
@@ -364,8 +290,27 @@ export class Game {
         goalRight[0],
         goalRight[1],
         goalRight[0],
-        this.game.board.height
+        this.game.board.board.height
       );
+    }
+    if (colision.type !== 'intersecting') {
+      if (posBall[0] < -this.game.ball.diammeter) {
+        colision = {
+          type: 'intersecting',
+          point: {
+            x: -this.game.ball.diammeter,
+            y: posBall[1],
+          },
+        };
+      } else if (posBall[0] > this.game.board.board.width) {
+        colision = {
+          type: 'intersecting',
+          point: {
+            x: this.game.board.board.width,
+            y: posBall[1],
+          },
+        };
+      }
     }
     return colision;
   }
@@ -522,23 +467,23 @@ export class Game {
     posBall: Point,
     posNextBall: Point
   ): IntersectionCheckResult {
-    if (posNextBall[0] < this.game.board.width / 2) {
+    if (posNextBall[0] < this.game.board.board.width / 2) {
       return this.rectangleColision(
         posBall,
         posNextBall,
         this.game.states.racketLeft.left - this.game.ball.diammeter,
-        this.game.states.racketLeft.left + this.game.racketLeft.width,
+        this.game.states.racketLeft.left + this.game.left.racket.width,
         this.game.states.racketLeft.top - this.game.ball.diammeter,
-        this.game.states.racketLeft.top + this.game.racketLeft.height
+        this.game.states.racketLeft.top + this.game.left.racket.height
       );
     } else {
       return this.rectangleColision(
         posBall,
         posNextBall,
         this.game.states.racketRight.left - this.game.ball.diammeter,
-        this.game.states.racketRight.left + this.game.racketRight.width,
+        this.game.states.racketRight.left + this.game.right.racket.width,
         this.game.states.racketRight.top - this.game.ball.diammeter,
-        this.game.states.racketRight.top + this.game.racketRight.height
+        this.game.states.racketRight.top + this.game.right.racket.height
       );
     }
   }
