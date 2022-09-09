@@ -46,6 +46,8 @@ services:
       - 4200
     networks:
       - frontend_network
+    volumes:
+      - ./frontend:/usr/src/app
 
   nginx:
     container_name: nginx

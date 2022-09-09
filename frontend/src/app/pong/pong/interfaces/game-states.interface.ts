@@ -5,7 +5,8 @@ export interface IGameStates {
   racketLeft: IPosition;
   racketRight: IPosition;
   ball: IPosition;
-  ballDirection: number[];
+  ballDirection: [number, number];
+  ballSpeed: number;
   scoreLeft: number;
   scoreRight: number;
   start: boolean;

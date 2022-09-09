@@ -3,12 +3,12 @@
 <div class="game">
   <canvas
     id="stage"
-    width="{{ gameConfig.board.width }}"
-    height="{{ gameConfig.board.height }}"
+    width="{{ gameConfig.board.board.width }}"
+    height="{{ gameConfig.board.board.height }}"
     [ngStyle]="{
       'max-width': '100vw',
       'max-height': '100vh',
-      'background-color': gameConfig.board.color
+      'background-color': gameConfig.board.board.color
     }"
   >
     votre navigateur n'accepte pas Canvas
@@ -18,8 +18,8 @@
     <button (click)="reset()">new game</button>
     <button (click)="resetAll()">reset all params</button>
     
-    <app-pong-racket [player]="gameConfig.racketLeft"></app-pong-racket>
-    <app-pong-racket [player]="gameConfig.racketRight"></app-pong-racket>
+    <app-pong-racket [player]="gameConfig.left.racket"></app-pong-racket>
+    <app-pong-racket [player]="gameConfig.right.racket"></app-pong-racket>
     <app-pong-ball [ball]="gameConfig.ball"></app-pong-ball>
     <app-pong-game [game]="gameConfig"></app-pong-game>
     

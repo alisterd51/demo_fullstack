@@ -1,19 +1,35 @@
+import { LevelAi } from '../ai';
 import { IBallConfig } from './ball-config.interface';
-import { IBoardConfig } from './board-config.interface';
+import { IBoard } from './board.interface';
 import { IGameStates } from './game-states.interface';
-import { IInput } from './input.interface';
-import { IRacketConfig } from './racket-config.interface';
+import { IPlayer } from './player.interface';
+
+export type GameMode =
+  | {
+      type: 'local';
+    }
+  | {
+      type: 'server';
+    };
+export type PlayerMode =
+  | {
+      type: 'local';
+      upKey: string;
+      downKey: string;
+    }
+  | {
+      type: 'ai';
+      level: LevelAi;
+    }
+  | {
+      type: 'remote';
+      id: number;
+    };
 
 export interface IGame {
-  userIdLeft: number;
-  userIdRight: number;
-  gameId: number;
-  scoreToWin: number;
-  board: IBoardConfig;
-  racketLeft: IRacketConfig;
-  racketRight: IRacketConfig;
-  inputLeft: IInput;
-  inputRight: IInput;
+  left: IPlayer,
+  right: IPlayer,
+  board: IBoard,
   ball: IBallConfig;
   states: IGameStates;
 }

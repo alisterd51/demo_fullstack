@@ -5,6 +5,7 @@ import {
   colinearPointWithinSegment,
   IntersectionCheckResult,
 } from 'line-intersect';
+import { defaultGameConfig } from './config';
 import { IGameStates } from './interfaces/game-states.interface';
 import { IGame } from './interfaces/game.interface';
 import { IInput } from './interfaces/input.interface';
@@ -12,84 +13,9 @@ import { IRacket } from './interfaces/racket.interface';
 
 export type LevelAi = 'easy' | 'hard';
 
-const interval_tick = 8; //16
-const racketHeight = 200;
-const racketWidth = 50;
-const gameHeight = 790;
-const gameWidth = 1000;
-const gameMargin = 10;
-const ballDiameter = 20;
-const racketSpeed = 5; //11
-const ballSpeed = 10; //20
-const defaultKeyUpPlayer1 = 'w';
-const defaultKeyDownPlayer1 = 's';
-const defaultKeyUpPlayer2 = 'ArrowUp';
-const defaultKeyDownPlayer2 = 'ArrowDown';
-const defaultColorRacketPlayer1 = '#5a74c4';
-const defaultColorRacketPlayer2 = '#a43737';
-const keyStart = ' ';
-const scoreToWin = 11; //11
-
 @Injectable()
 export class Ai {
-  private game: IGame = {
-    userIdLeft: 0,
-    userIdRight: 1,
-    gameId: 0,
-    scoreToWin: scoreToWin,
-    board: {
-      width: gameWidth,
-      height: gameHeight,
-      margin: gameMargin,
-      color: '#000000',
-    },
-    racketLeft: {
-      width: racketWidth,
-      height: racketHeight,
-      speed: racketSpeed,
-      color: defaultColorRacketPlayer1,
-    },
-    racketRight: {
-      width: racketWidth,
-      height: racketHeight,
-      speed: racketSpeed,
-      color: defaultColorRacketPlayer2,
-    },
-    inputLeft: {
-      userId: 0,
-      up: false,
-      down: false,
-    },
-    inputRight: {
-      userId: 1,
-      up: false,
-      down: false,
-    },
-    ball: {
-      diammeter: ballDiameter,
-      speed: ballSpeed,
-      collor: '#e5e83b',
-    },
-    states: {
-      gameId: 0,
-      racketLeft: {
-        left: gameMargin,
-        top: gameMargin,
-      },
-      racketRight: {
-        left: gameWidth - gameMargin - racketWidth,
-        top: gameMargin,
-      },
-      ball: {
-        left: gameWidth / 2 - ballDiameter / 2,
-        top: gameHeight / 2 - ballDiameter / 2,
-      },
-      ballDirection: [ballSpeed / 2, 0],
-      scoreLeft: 0,
-      scoreRight: 0,
-      start: false,
-    },
-  };
+  private game: IGame = defaultGameConfig;
   private level: LevelAi = 'easy';
   private userId = 0;
 
@@ -127,19 +53,19 @@ export class Ai {
   }
 
   private getRacket(): IRacket | null {
-    if (this.userId === this.game.userIdLeft) {
+    if (this.userId === this.game.left.id) {
       return {
         left: this.game.states.racketLeft.left,
         top: this.game.states.racketLeft.top,
-        width: this.game.racketLeft.width,
-        height: this.game.racketLeft.height,
+        width: this.game.left.racket.width,
+        height: this.game.left.racket.height,
       };
-    } else if (this.userId === this.game.userIdRight) {
+    } else if (this.userId === this.game.right.id) {
       return {
         left: this.game.states.racketRight.left,
         top: this.game.states.racketRight.top,
-        width: this.game.racketRight.width,
-        height: this.game.racketRight.height,
+        width: this.game.right.racket.width,
+        height: this.game.right.racket.height,
       };
     } else {
       return null;
@@ -162,7 +88,7 @@ export class Ai {
         this.game.states.ball.left + this.game.ball.diammeter < racket.left)
     ) {
       return this.ketToCenter(
-        this.game.board.height / 2,
+        this.game.board.board.height / 2,
         racket.top + racket.height / 2,
         racket.height
       );
@@ -201,10 +127,10 @@ export class Ai {
       racketCenter[0],
       0,
       racketCenter[0],
-      this.game.board.height
+      this.game.board.board.height
     );
     const wall: Point =
-      ballDirection[1] < 0 ? [0, 0] : [0, this.game.board.height];
+      ballDirection[1] < 0 ? [0, 0] : [0, this.game.board.board.height];
     const wallColision: IntersectionCheckResult = checkIntersection(
       ball[0],
       ball[1],
@@ -212,7 +138,7 @@ export class Ai {
       ball[1] + ballDirection[1],
       wall[0],
       wall[1],
-      this.game.board.width,
+      this.game.board.board.width,
       wall[1]
     );
     if (
@@ -223,7 +149,7 @@ export class Ai {
         racketCenter[0],
         0,
         racketCenter[0],
-        this.game.board.height
+        this.game.board.board.height
       )
     ) {
       return racketColision.point.y;
@@ -234,7 +160,7 @@ export class Ai {
         [ballDirection[0], ballDirection[1] * -1]
       );
     } else {
-      return this.game.board.height / 2;
+      return this.game.board.board.height / 2;
     }
   }
 
