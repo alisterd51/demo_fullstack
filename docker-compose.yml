@@ -27,11 +27,15 @@ services:
       DB_NAME: "${DB_NAME}"
       DB_PORT: "${DB_PORT}"
       DB_HOST: "${DB_HOST}"
-    command: npm run start
+    command: npm run start:dev
     expose:
       - 3000
     networks:
       - backend_network
+    volumes:
+      - ./backend:/usr/src/app
+    depends_on:
+      - postgres
 
   frontend:
     container_name: frontend
@@ -63,6 +67,9 @@ services:
     networks:
       - frontend_network
       - backend_network
+    depends_on:
+      - backend
+      - frontend
 
 networks:
   backend_network:

@@ -12,10 +12,12 @@ COPY package*.json ./
 RUN npm install
 
 # Bundle app source
-COPY . .
+# COPY . .
 
 # Creates a "dist" folder with the production build
-RUN npm run build
+# RUN npm run build
+
+CMD [ "npm", "run", "start:dev" ]
 
 # Start the server using the production build
-CMD [ "node", "dist/main.js" ]
+# CMD [ "node", "dist/main.js" ]
