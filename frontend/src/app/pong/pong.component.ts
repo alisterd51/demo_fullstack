@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { filter, fromEvent, interval } from 'rxjs';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { filter, fromEvent, interval, Observable, Subscription } from 'rxjs';
 import { SocketService } from '../services/socket.service';
 import { Ai } from './pong/ai';
 import { defaultGameConfig } from './pong/config';
@@ -28,7 +28,7 @@ const keyStart = ' ';
   styleUrls: ['./pong.component.css'],
   providers: [Game, Ai],
 })
-export class PongComponent implements OnInit {
+export class PongComponent implements OnInit, OnDestroy {
   gameConfig: IGame = structuredClone(defaultGameConfig);
 
   moveLeft: IInput = {
@@ -47,8 +47,14 @@ export class PongComponent implements OnInit {
 
   game_title = 'FT PONG';
 
-  fup$ = fromEvent<KeyboardEvent>(window, 'keyup');
-  fdown$ = fromEvent<KeyboardEvent>(window, 'keydown');
+  fup$ = fromEvent<KeyboardEvent>(document, 'keyup');
+  fdown$ = fromEvent<KeyboardEvent>(document, 'keydown');
+
+  moveSubscription!: Subscription;
+  gameStatesSubscription!: Subscription;
+  tickSubscription!: Subscription;
+  upSubscription!: Subscription;
+  downSubscription!: Subscription;
 
   constructor(
     private socketService: SocketService,
@@ -62,23 +68,39 @@ export class PongComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.socketService.getMove().subscribe((move: any) => {
-      this.game.updateInput(move);
-    });
-    this.socketService.getGameStates().subscribe((states: any) => {
-      this.game.updateStates(states);
-    });
-    interval(interval_tick).subscribe(() => {
+    this.moveSubscription = this.socketService
+      .getMove()
+      .subscribe((move: any) => {
+        this.game.updateInput(move);
+      });
+    this.gameStatesSubscription = this.socketService
+      .getGameStates()
+      .subscribe((states: any) => {
+        this.game.updateStates(states);
+      });
+    this.tickSubscription = interval(interval_tick).subscribe(() => {
       this.tick();
     });
-    this.fup$.pipe(filter((event) => !event.repeat)).subscribe((event) => {
-      this.toUp(event.key);
-    });
-    this.fdown$.pipe(filter((event) => !event.repeat)).subscribe((event) => {
-      this.toDown(event.key);
-    });
+    this.upSubscription = this.fup$
+      .pipe(filter((event) => !event.repeat))
+      .subscribe((event) => {
+        this.toUp(event.key);
+      });
+    this.downSubscription = this.fdown$
+      .pipe(filter((event) => !event.repeat))
+      .subscribe((event) => {
+        this.toDown(event.key);
+      });
     this.canvas = <HTMLCanvasElement>document.getElementById('stage');
     this.ctx = <CanvasRenderingContext2D>this.canvas.getContext('2d');
+  }
+
+  ngOnDestroy(): void {
+    this.moveSubscription.unsubscribe();
+    this.gameStatesSubscription.unsubscribe();
+    this.tickSubscription.unsubscribe();
+    this.upSubscription.unsubscribe();
+    this.downSubscription.unsubscribe();
   }
 
   sendMove(move: IInput, prevMove: IInput) {
