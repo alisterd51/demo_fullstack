@@ -1,4 +1,3 @@
-import { Injectable } from '@angular/core';
 import { lineAngle, Point, pointTranslate } from 'geometric';
 import {
   checkIntersection,
@@ -13,7 +12,6 @@ import { IRacket } from './interfaces/racket.interface';
 
 export type LevelAi = 'easy' | 'hard';
 
-@Injectable()
 export class Ai {
   private game: IGame = structuredClone(defaultGameConfig);
   private level: LevelAi = 'easy';
@@ -29,7 +27,7 @@ export class Ai {
     this.game.states = states;
   }
 
-  public setUserId(userId : number) {
+  public setUserId(userId: number) {
     this.userId = userId;
   }
 

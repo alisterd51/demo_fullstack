@@ -3,10 +3,8 @@ import { IGame } from './interfaces/game.interface';
 import { IInput } from './interfaces/input.interface';
 import { checkIntersection, IntersectionCheckResult } from 'line-intersect';
 import { lineAngle, Point, pointTranslate } from 'geometric';
-import { Injectable } from '@angular/core';
 import { defaultGameConfig } from './config';
 
-@Injectable()
 export class Game {
   private game: IGame = structuredClone(defaultGameConfig);
 
