@@ -83,13 +83,11 @@ export class PongComponent implements OnInit, OnDestroy {
     this.moveSubscription = this.socketService
       .getMove()
       .subscribe((move: any) => {
-        console.log('get move', move);
         this.game.updateInput(move);
       });
     this.startSubscription = this.socketService
       .getStart()
       .subscribe((move: any) => {
-        console.log('get start');
         this.game.start();
       });
     this.gameStatesSubscription = this.socketService
@@ -145,7 +143,6 @@ export class PongComponent implements OnInit, OnDestroy {
 
   sendStart() {
     this.socketService.sendStart();
-    console.log('test start');
   }
 
   sendGameStates(gameStates: IGameStates) {
@@ -246,7 +243,7 @@ export class PongComponent implements OnInit, OnDestroy {
     if (this.gameConfig.board.mode.type === 'server') {
       //this.gameConfig.states = this.game.getGameStates();
     } else {
-      //this.sendGameStates(this.gameConfig.states);
+      this.sendGameStates(this.gameConfig.states);
     }
     this.draw();
     if (!this.gameConfig.states.start || this.game.getWinner != null) {
