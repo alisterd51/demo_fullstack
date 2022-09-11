@@ -50,4 +50,16 @@ export class SocketService {
       });
     });
   }
+
+  sendStart(): void {
+    this.socket.emit('startToServer');
+  }
+
+  getStart() {
+    return new Observable<void>((observer) => {
+      this.socket.on('startToClient', (payload) => {
+        observer.next(payload);
+      });
+    });
+  }
 }

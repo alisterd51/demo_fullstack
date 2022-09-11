@@ -1,17 +1,15 @@
 <div>
-  <!--
+  <label for="id">
+    id:
+    <input type="number" name="id" id="id" [(ngModel)]="game.board.id" />
+  </label>
   <label for="mode">
     mode:
-    <select [(ngModel)]="game.mode" name="mode" id="mode">
+    <select [(ngModel)]="game.board.mode.type" name="mode" id="mode">
       <option value="local">local</option>
       <option value="server">server</option>
     </select>
   </label>
-  <label *ngIf="game.mode === 'server'" for="id">
-    id:
-    <input id="uid" [(ngModel)]="game.gameId" placeholder="id" />
-  </label>
-  -->
   <label for="backgroundColor">
     color:
     <input
@@ -21,17 +19,6 @@
       [(ngModel)]="game.board.board.color"
     />
   </label>
-  <!--
-  <label for="racketSpeed">
-    racketSpeed:
-    <input
-      type="number"
-      name="racketSpeed"
-      id="racketSpeed"
-      [(ngModel)]="game.racketSpeed"
-    />
-  </label>
-  -->
   <label for="ballSpeed">
     ballSpeed:
     <input

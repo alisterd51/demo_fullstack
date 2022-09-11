@@ -36,6 +36,12 @@ export class AppGateway
     this.server.emit('gameStatesToClient', payload);
   }
 
+  @SubscribeMessage('startToServer')
+  handleStart(client: any, payload: any): void {
+    this.server.emit('startToClient', payload);
+    //console.log('bidul');
+  }
+
   afterInit(server: Server) {
     this.logger.log('Init');
   }

@@ -42,6 +42,17 @@ export class PongComponent implements OnInit, OnDestroy {
     down: false,
   };
 
+  prevMoveLeft: IInput = {
+    userId: 0,
+    up: false,
+    down: false,
+  };
+  prevMoveRight: IInput = {
+    userId: 1,
+    up: false,
+    down: false,
+  };
+
   canvas!: HTMLCanvasElement;
   ctx!: CanvasRenderingContext2D;
 
@@ -51,6 +62,7 @@ export class PongComponent implements OnInit, OnDestroy {
   fdown$ = fromEvent<KeyboardEvent>(document, 'keydown');
 
   moveSubscription!: Subscription;
+  startSubscription!: Subscription;
   gameStatesSubscription!: Subscription;
   tickSubscription!: Subscription;
   upSubscription!: Subscription;
@@ -71,7 +83,14 @@ export class PongComponent implements OnInit, OnDestroy {
     this.moveSubscription = this.socketService
       .getMove()
       .subscribe((move: any) => {
+        console.log('get move', move);
         this.game.updateInput(move);
+      });
+    this.startSubscription = this.socketService
+      .getStart()
+      .subscribe((move: any) => {
+        console.log('get start');
+        this.game.start();
       });
     this.gameStatesSubscription = this.socketService
       .getGameStates()
@@ -97,16 +116,36 @@ export class PongComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.moveSubscription.unsubscribe();
+    this.startSubscription.unsubscribe();
     this.gameStatesSubscription.unsubscribe();
     this.tickSubscription.unsubscribe();
     this.upSubscription.unsubscribe();
     this.downSubscription.unsubscribe();
   }
 
-  sendMove(move: IInput, prevMove: IInput) {
-    if (move.up !== prevMove.up || move.down !== prevMove.down) {
+  // il faudrait rajouter l'id de la partie
+  sendMove(move: IInput) {
+    if (
+      move.userId === this.gameConfig.left.id &&
+      (move.down !== this.prevMoveLeft.down || move.up !== this.prevMoveLeft.up)
+    ) {
       this.socketService.sendMove(move);
+      this.prevMoveLeft.up = move.up;
+      this.prevMoveLeft.down = move.down;
+    } else if (
+      move.userId === this.gameConfig.right.id &&
+      (move.down !== this.prevMoveRight.down ||
+        move.up !== this.prevMoveRight.up)
+    ) {
+      this.socketService.sendMove(move);
+      this.prevMoveRight.up = move.up;
+      this.prevMoveRight.down = move.down;
     }
+  }
+
+  sendStart() {
+    this.socketService.sendStart();
+    console.log('test start');
   }
 
   sendGameStates(gameStates: IGameStates) {
@@ -146,7 +185,8 @@ export class PongComponent implements OnInit, OnDestroy {
       }
     }
     if (key === keyStart) {
-      this.game.start();
+      //this.game.start();
+      this.sendStart();
     }
   }
 
@@ -182,25 +222,32 @@ export class PongComponent implements OnInit, OnDestroy {
       this.gameConfig.board.board.margin -
       this.gameConfig.right.racket.width;
 
-    this.game.updateInput(
-      this.getInput(
+    if (this.gameConfig.left.mode.type !== 'remote') {
+      const move = this.getInput(
         this.gameConfig.left.mode,
         this.gameConfig.left.id,
         this.moveLeft,
         this.moveLeft
-      )
-    );
-    this.game.updateInput(
-      this.getInput(
+      );
+      this.game.updateInput(move);
+      this.sendMove(move);
+    }
+    if (this.gameConfig.right.mode.type !== 'remote') {
+      const move = this.getInput(
         this.gameConfig.right.mode,
         this.gameConfig.right.id,
         this.moveRight,
         this.moveRight
-      )
-    );
+      );
+      this.game.updateInput(move);
+      this.sendMove(move);
+    }
     this.game.tick();
-    this.gameConfig.states = this.game.getGameStates();
-    this.sendGameStates(this.gameConfig.states);
+    if (this.gameConfig.board.mode.type === 'server') {
+      //this.gameConfig.states = this.game.getGameStates();
+    } else {
+      //this.sendGameStates(this.gameConfig.states);
+    }
     this.draw();
     if (!this.gameConfig.states.start || this.game.getWinner != null) {
       this.darken();
@@ -221,11 +268,7 @@ export class PongComponent implements OnInit, OnDestroy {
       this.ai.setUserId(userId);
       return this.ai.getInput();
     } else if (racketMode.type === 'remote') {
-      return {
-        userId: userId,
-        up: false,
-        down: false,
-      };
+      return remoteMove;
     } else {
       return {
         userId: userId,
