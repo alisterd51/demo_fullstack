@@ -141,7 +141,6 @@ export class Game {
       racketColision,
     ]);
 
-    //certaine collision ne marche pas
     if (collision.type === 'intersecting') {
       if (collision == wallColision) {
         this.game.states.ball.left = collision.point.x;
@@ -199,9 +198,9 @@ export class Game {
   private newBall(): void {
     this.game.states.ballSpeed = this.game.ball.speed;
     this.game.states.ball.left =
-      (this.game.board.board.width + this.game.ball.diammeter) / 2;
+      (this.game.board.board.width - this.game.ball.diammeter) / 2;
     this.game.states.ball.top =
-      (this.game.board.board.height + this.game.ball.diammeter) / 2;
+      (this.game.board.board.height - this.game.ball.diammeter) / 2;
     if ((this.game.states.scoreLeft + this.game.states.scoreRight) % 2) {
       this.game.states.ballDirection = [-this.game.states.ballSpeed / 2, 0];
     } else {

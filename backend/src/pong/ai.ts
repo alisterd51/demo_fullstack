@@ -27,7 +27,7 @@ export class Ai {
     this.game.states = states;
   }
 
-  public setUserId(userId: number) {
+  public setUserId(userId : number) {
     this.userId = userId;
   }
 
